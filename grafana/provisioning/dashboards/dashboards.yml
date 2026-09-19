@@ -1,0 +1,18 @@
+# =============================================================================
+#  Provider de dashboards: carrega todo JSON de /var/lib/grafana/dashboards
+#  (montado a partir de ./grafana/dashboards) na subida do Grafana.
+# =============================================================================
+apiVersion: 1
+
+providers:
+  - name: spring-devops-observability
+    orgId: 1
+    folder: Spring Boot
+    folderUid: spring-boot
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

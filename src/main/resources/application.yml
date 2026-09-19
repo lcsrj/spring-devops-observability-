@@ -1,0 +1,89 @@
+spring:
+  application:
+    name: spring-devops-observability
+  thymeleaf:
+    cache: true
+  mvc:
+    problemdetails:
+      enabled: false
+
+server:
+  port: 8080
+  shutdown: graceful
+  error:
+    include-message: always
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
+app:
+  name: DevOps Observability Control Center
+  # Filtrado pelo Maven em build time (spring-boot-starter-parent usa o delimitador @).
+  version: @project.version@
+  environment: ${APP_ENVIRONMENT:local}
+  links:
+    prometheus: ${LINK_PROMETHEUS:http://localhost:9090}
+    grafana: ${LINK_GRAFANA:http://localhost:3000}
+    graylog: ${LINK_GRAYLOG:http://localhost:9000}
+  traffic:
+    default-requests: 25
+    max-requests: 200
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Superficie minima: apenas o necessario para a avaliacao do projeto.
+        include: health,info,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    diskspace:
+      # Desabilitado de proposito. Esta aplicacao nao usa disco (nao ha banco,
+      # cache em arquivo nem upload), entao espaco livre no volume nao diz nada
+      # sobre a capacidade dela de atender requisicoes. Com o indicador ativo,
+      # um disco cheio no HOST faz /actuator/health responder 503 e a aplicacao
+      # parecer DOWN estando perfeitamente saudavel - foi exatamente o que um
+      # teste flagrou durante o desenvolvimento.
+      enabled: false
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      application: spring-devops-observability
+      environment: ${APP_ENVIRONMENT:local}
+    distribution:
+      # Habilita histograma nativo para calcular percentis reais de latencia no Grafana.
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+      slo:
+        http.server.requests: 25ms,50ms,100ms,250ms,500ms,1s
+
+info:
+  app:
+    name: ${app.name}
+    version: @project.version@
+    environment: ${APP_ENVIRONMENT:local}
+    description: Painel de automacao, observabilidade e esteira DevSecOps com Spring Boot
+
+logging:
+  level:
+    root: INFO
+    br.com.devops.observability: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%X{correlation_id:-no-correlation}] %-45.45logger{45} : %m%n"

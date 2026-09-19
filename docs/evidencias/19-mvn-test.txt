@@ -1,0 +1,63 @@
+# Saida de 'mvn test' na mesma imagem do estagio de build
+# Coletado em 2026-09-17T20:46:49Z
+
+[INFO] Running br.com.devops.observability.ObservabilityApplicationTests
+20:46:54.956 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [br.com.devops.observability.ObservabilityApplicationTests]: ObservabilityApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:46:55.359 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration br.com.devops.observability.ObservabilityApplication for test class br.com.devops.observability.ObservabilityApplicationTests
+20:46:56,723 |-WARN in org.springframework.boot.logging.logback.SpringProfileIfNestedWithinSecondPhaseElementSanityChecker@294bdeb4 - <springProfile> elements cannot be nested within an <appender>, <logger> or <root> element
+20:46:56,724 |-WARN in org.springframework.boot.logging.logback.SpringProfileIfNestedWithinSecondPhaseElementSanityChecker@294bdeb4 - Element <root> at line 77 contains a nested <springProfile> element at line 79
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.3)
+
+20:46:57,489 |-WARN in Logger[br.com.devops.observability.ObservabilityApplicationTests] - No appenders present in context [default] for logger [br.com.devops.observability.ObservabilityApplicationTests].
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/root/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.6/byte-buddy-agent-1.17.6.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.85 s -- in br.com.devops.observability.ObservabilityApplicationTests
+[INFO] Running br.com.devops.observability.web.DemoEndpointTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.3)
+
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.331 s -- in br.com.devops.observability.web.DemoEndpointTests
+[INFO] Running br.com.devops.observability.web.StatusEndpointTests
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.392 s -- in br.com.devops.observability.web.StatusEndpointTests
+[INFO] Running br.com.devops.observability.web.TrafficGeneratorIntegrationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.3)
+
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.724 s -- in br.com.devops.observability.web.TrafficGeneratorIntegrationTests
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  23.140 s
+[INFO] Finished at: 2026-09-17T20:47:14Z
+[INFO] ------------------------------------------------------------------------

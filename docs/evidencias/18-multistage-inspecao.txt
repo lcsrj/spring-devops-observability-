@@ -1,0 +1,31 @@
+# Prova da separacao dos estagios do Dockerfile multistage
+# Coletado em 2026-09-17T20:46:45Z
+
+## Tamanho: imagem de build vs. imagem final de runtime
+spring-devops-observability:1.0.0  398MB
+spring-devops-observability:local  398MB
+maven:3.9.9-eclipse-temurin-21  800MB
+
+## Conteudo de /app na imagem final
+total 29M
+-rw-r--r-- 1 spring spring 29M Sep 17 20:44 app.jar
+
+## Ferramentas de build na imagem final (devem estar AUSENTES)
+AUSENTE : mvn
+AUSENTE : maven
+AUSENTE : javac
+AUSENTE : jar
+AUSENTE : jdb
+
+## Codigo-fonte e repositorio Maven na imagem final
+arquivos .java : 0
+arquivos pom.xml: 0
+diretorio .m2   : ausente
+
+## Runtime Java e usuario do processo
+openjdk version "21.0.12" 2026-07-21 LTS
+usuario: uid=100(spring) gid=101(spring) groups=101(spring)
+
+## Estagios declarados no Dockerfile
+17:FROM maven:3.9.9-eclipse-temurin-21 AS build
+39:FROM eclipse-temurin:21.0.12_8-jre-alpine AS runtime

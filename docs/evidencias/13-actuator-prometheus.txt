@@ -1,0 +1,52 @@
+# Trecho de http://localhost:8080/actuator/prometheus
+# Coletado em 2026-09-17T20:46:42Z
+
+app_demo_log_events_total{application="spring-devops-observability",environment="docker",level="DEBUG",version="1.0.0"} 7.0
+app_demo_log_events_total{application="spring-devops-observability",environment="docker",level="ERROR",version="1.0.0"} 7.0
+app_demo_log_events_total{application="spring-devops-observability",environment="docker",level="INFO",version="1.0.0"} 7.0
+app_demo_log_events_total{application="spring-devops-observability",environment="docker",level="WARN",version="1.0.0"} 7.0
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="400",uri="/api/demo/bad-request",version="1.0.0"} 48
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/**",version="1.0.0"} 3
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SERVER_ERROR",status="500",uri="/api/demo/error",version="1.0.0"} 22
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/",version="1.0.0"} 5
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/**",version="1.0.0"} 4
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/health",version="1.0.0"} 7
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/health/**",version="1.0.0"} 13
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/info",version="1.0.0"} 2
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/prometheus",version="1.0.0"} 26
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/demo/ok",version="1.0.0"} 160
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/history",version="1.0.0"} 4
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/status",version="1.0.0"} 5
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/demo/log/debug",version="1.0.0"} 7
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/demo/log/error",version="1.0.0"} 7
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/demo/log/info",version="1.0.0"} 7
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/demo/log/warn",version="1.0.0"} 7
+http_server_requests_seconds_count{application="spring-devops-observability",environment="docker",error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/demo/traffic",version="1.0.0"} 7
+jvm_memory_committed_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Eden Space",version="1.0.0"} 3.4209792E7
+jvm_memory_committed_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Survivor Space",version="1.0.0"} 4259840.0
+jvm_memory_committed_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Tenured Gen",version="1.0.0"} 8.5327872E7
+jvm_memory_committed_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'non-nmethods'",version="1.0.0"} 2555904.0
+jvm_memory_committed_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'non-profiled nmethods'",version="1.0.0"} 4784128.0
+jvm_memory_committed_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'profiled nmethods'",version="1.0.0"} 1.7235968E7
+jvm_memory_committed_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="Compressed Class Space",version="1.0.0"} 6750208.0
+jvm_memory_committed_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="Metaspace",version="1.0.0"} 5.1380224E7
+jvm_memory_max_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Eden Space",version="1.0.0"} 1.525153792E9
+jvm_memory_max_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Survivor Space",version="1.0.0"} 1.90578688E8
+jvm_memory_max_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Tenured Gen",version="1.0.0"} 3.812622336E9
+jvm_memory_max_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'non-nmethods'",version="1.0.0"} 5840896.0
+jvm_memory_max_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'non-profiled nmethods'",version="1.0.0"} 1.22908672E8
+jvm_memory_max_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'profiled nmethods'",version="1.0.0"} 1.22908672E8
+jvm_memory_max_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="Compressed Class Space",version="1.0.0"} 1.073741824E9
+jvm_memory_max_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="Metaspace",version="1.0.0"} -1.0
+jvm_memory_used_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Eden Space",version="1.0.0"} 2.403284E7
+jvm_memory_used_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Survivor Space",version="1.0.0"} 294816.0
+jvm_memory_used_bytes{application="spring-devops-observability",area="heap",environment="docker",id="Tenured Gen",version="1.0.0"} 2.5166576E7
+jvm_memory_used_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'non-nmethods'",version="1.0.0"} 1406848.0
+jvm_memory_used_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'non-profiled nmethods'",version="1.0.0"} 4761600.0
+jvm_memory_used_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="CodeHeap 'profiled nmethods'",version="1.0.0"} 1.7178496E7
+jvm_memory_used_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="Compressed Class Space",version="1.0.0"} 6432072.0
+jvm_memory_used_bytes{application="spring-devops-observability",area="nonheap",environment="docker",id="Metaspace",version="1.0.0"} 5.0619968E7
+jvm_threads_live_threads{application="spring-devops-observability",environment="docker",version="1.0.0"} 24.0
+process_cpu_usage{application="spring-devops-observability",environment="docker",version="1.0.0"} 0.0012861736334405145
+process_uptime_seconds{application="spring-devops-observability",environment="docker",version="1.0.0"} 123.24
+system_cpu_usage{application="spring-devops-observability",environment="docker",version="1.0.0"} 0.10410186458615167

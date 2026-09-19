@@ -1,0 +1,48 @@
+# Consultas PromQL executadas contra http://localhost:9090
+# Coletado em 2026-09-17T20:46:42Z
+
+target UP                          1
+  promql:                          up{job="spring-boot-app"}
+
+heap usada (bytes)                 47776288
+  promql:                          sum(jvm_memory_used_bytes{job="spring-boot-app",area="heap"})
+
+heap maxima (bytes)                5528354816
+  promql:                          sum(jvm_memory_max_bytes{job="spring-boot-app",area="heap"})
+
+heap comprometida (bytes)          123797504
+  promql:                          sum(jvm_memory_committed_bytes{job="spring-boot-app",area="heap"})
+
+CPU do processo                    0.0004987531172069825
+  promql:                          process_cpu_usage{job="spring-boot-app"}
+
+threads vivas                      24
+  promql:                          jvm_threads_live_threads{job="spring-boot-app"}
+
+uptime (s)                         121.952
+  promql:                          process_uptime_seconds{job="spring-boot-app"}
+
+total de requisicoes               333
+  promql:                          sum(http_server_requests_seconds_count{job="spring-boot-app"})
+
+RPS (1m)                           2.5819120695298006
+  promql:                          sum(rate(http_server_requests_seconds_count{job="spring-boot-app"}[1m]))
+
+requisicoes 2xx                    260
+  promql:                          sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"2.."})
+
+requisicoes 4xx                    51
+  promql:                          sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"4.."})
+
+requisicoes 5xx                    22
+  promql:                          sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"5.."})
+
+latencia media (s)                 0.006677624184604451
+  promql:                          sum(rate(http_server_requests_seconds_sum{job="spring-boot-app"}[5m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app"}[5m])), 0.0001)
+
+latencia p95 (s)                   0.0178026546037314
+  promql:                          histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="spring-boot-app"}[5m])))
+
+eventos de log gerados             28
+  promql:                          sum(app_demo_log_events_total{job="spring-boot-app"})
+

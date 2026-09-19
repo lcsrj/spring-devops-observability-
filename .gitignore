@@ -1,0 +1,50 @@
+# ----- Java / Maven -----
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# ----- IDEs -----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+nbproject/private/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ----- Sistema operacional -----
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ----- Logs e temporarios -----
+*.log
+logs/
+*.tmp
+*.bak
+*.swp
+*~
+
+# ----- Configuracao local / segredos -----
+# O .env local NAO e versionado; use .env.example como referencia.
+.env
+.env.local
+*.pem
+*.key
+
+# ----- Artefatos de execucao da stack -----
+docker-compose.override.yml
+.stack-logs/

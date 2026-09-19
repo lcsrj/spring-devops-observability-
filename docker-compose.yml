@@ -1,0 +1,290 @@
+# =============================================================================
+#  DevOps Observability Control Center - stack local completa
+#
+#  Comando unico para subir tudo:
+#
+#      docker compose up --build
+#
+#  Nenhum passo manual e necessario depois disso:
+#    - o Prometheus ja aponta para a aplicacao;
+#    - o Grafana ja tem o data source e o dashboard provisionados;
+#    - o servico graylog-init cria o Input GELF UDP automaticamente.
+#
+#  Versoes fixas e mutuamente compativeis (sem tags `latest`):
+#    aplicacao  : JDK/Maven 3.9.9 + Temurin 21 (build) / Temurin 21.0.12 JRE (runtime)
+#    prometheus : v2.54.1
+#    grafana    : 11.2.0
+#    graylog    : 5.2.11  -> compativel com MongoDB 5.0/6.0 e OpenSearch 2.x
+#    mongodb    : 6.0.19  (metadados/configuracao do Graylog)
+#    opensearch : 2.15.0  (armazenamento e indexacao das mensagens)
+#    curl       : 8.9.1   (imagem do provisionador graylog-init)
+#
+#  As portas publicadas podem ser trocadas via .env (veja .env.example) sem
+#  editar este arquivo - util quando alguma porta ja esta ocupada no host.
+# =============================================================================
+
+name: spring-devops-observability
+
+networks:
+  observability:
+    name: observability-net
+    driver: bridge
+
+volumes:
+  prometheus-data:
+    name: obs-prometheus-data
+  grafana-data:
+    name: obs-grafana-data
+  mongodb-data:
+    name: obs-mongodb-data
+  opensearch-data:
+    name: obs-opensearch-data
+  graylog-data:
+    name: obs-graylog-data
+  graylog-journal:
+    name: obs-graylog-journal
+
+services:
+
+  # ===========================================================================
+  #  APLICACAO SPRING BOOT
+  #  Construida a partir do Dockerfile multistage (testes rodam no estagio 1).
+  #  Porta host: ${APP_PORT:-8080} -> 8080
+  # ===========================================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: spring-devops-observability:1.0.0
+    container_name: obs-app
+    hostname: spring-app
+    restart: unless-stopped
+    environment:
+      # Ativa o appender GELF definido em logback-spring.xml.
+      SPRING_PROFILES_ACTIVE: docker
+      APP_ENVIRONMENT: docker
+      GRAYLOG_HOST: graylog
+      GRAYLOG_PORT: "12201"
+      # Links exibidos na secao "Links rapidos" da interface (visao do navegador do host).
+      LINK_PROMETHEUS: "http://localhost:${PROMETHEUS_PORT:-9090}"
+      LINK_GRAFANA: "http://localhost:${GRAFANA_PORT:-3000}"
+      LINK_GRAYLOG: "http://localhost:${GRAYLOG_PORT:-9000}"
+      JAVA_OPTS: "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    depends_on:
+      # Ordenacao apenas: o envio GELF e UDP (fire-and-forget), portanto a
+      # aplicacao nunca bloqueia nem falha se o Graylog ainda estiver subindo.
+      graylog:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8080/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 45s
+    networks:
+      - observability
+
+  # ===========================================================================
+  #  PROMETHEUS - coleta as metricas em app:8080/actuator/prometheus
+  #  Porta host: ${PROMETHEUS_PORT:-9090} -> 9090
+  # ===========================================================================
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: obs-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-lifecycle
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    depends_on:
+      # Espera a aplicacao estar saudavel para que o primeiro scrape ja funcione.
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:9090/-/healthy | grep -q Healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+    networks:
+      - observability
+
+  # ===========================================================================
+  #  GRAFANA - data source e dashboard provisionados automaticamente
+  #  Porta host: ${GRAFANA_PORT:-3000} -> 3000
+  #  Credenciais de DESENVOLVIMENTO (laboratorio local): admin / admin123
+  # ===========================================================================
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: obs-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: "${GRAFANA_ADMIN_USER:-admin}"
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD:-admin123}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      # Abre direto no dashboard do projeto, sem navegacao manual.
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/spring-boot-observability.json
+      GF_LOG_LEVEL: warn
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/api/health | grep -q '\"database\": *\"ok\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - observability
+
+  # ===========================================================================
+  #  MONGODB - metadados e configuracao do Graylog
+  #  Porta interna 27017: NAO publicada no host (nao e necessaria de fora).
+  # ===========================================================================
+  mongodb:
+    image: mongo:6.0.19
+    container_name: obs-mongodb
+    restart: unless-stopped
+    command: ["--wiredTigerCacheSizeGB", "0.35"]
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval \"db.adminCommand('ping').ok\" | grep -q 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks:
+      - observability
+
+  # ===========================================================================
+  #  OPENSEARCH - armazenamento e indexacao das mensagens do Graylog
+  #  Porta interna 9200: NAO publicada no host.
+  #  Plugin de seguranca desabilitado de proposito: laboratorio local isolado
+  #  em rede Docker interna, sem exposicao ao host.
+  # ===========================================================================
+  opensearch:
+    image: opensearchproject/opensearch:2.15.0
+    container_name: obs-opensearch
+    restart: unless-stopped
+    environment:
+      cluster.name: graylog-cluster
+      node.name: opensearch-node1
+      discovery.type: single-node
+      bootstrap.memory_lock: "true"
+      plugins.security.disabled: "true"
+      action.auto_create_index: "false"
+      OPENSEARCH_JAVA_OPTS: "-Xms768m -Xmx768m"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -f http://127.0.0.1:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+      interval: 10s
+      timeout: 8s
+      retries: 20
+      start_period: 40s
+    networks:
+      - observability
+
+  # ===========================================================================
+  #  GRAYLOG - centralizacao de logs
+  #  Porta host ${GRAYLOG_PORT:-9000} -> 9000 (interface web e API)
+  #  Porta host ${GELF_PORT:-12201}/udp -> 12201 (Input GELF)
+  #  Credenciais de DESENVOLVIMENTO (laboratorio local): admin / admin
+  # ===========================================================================
+  graylog:
+    image: graylog/graylog:5.2.11
+    container_name: obs-graylog
+    restart: unless-stopped
+    environment:
+      # Segredo de laboratorio (>= 16 caracteres). NAO reutilizar em producao.
+      GRAYLOG_PASSWORD_SECRET: "${GRAYLOG_PASSWORD_SECRET:-devops-observability-lab-secret}"
+      # SHA-256 da senha 'admin' -> senha padrao de DESENVOLVIMENTO.
+      GRAYLOG_ROOT_PASSWORD_SHA2: "${GRAYLOG_ROOT_PASSWORD_SHA2:-8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918}"
+      GRAYLOG_ROOT_TIMEZONE: "America/Sao_Paulo"
+      GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9000"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:${GRAYLOG_PORT:-9000}/"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
+      GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+      GRAYLOG_ELASTICSEARCH_INDEX_PREFIX: "graylog"
+      # Retencao curta: laboratorio local, sem necessidade de historico longo.
+      GRAYLOG_ELASTICSEARCH_MAX_NUMBER_OF_INDICES: "5"
+      GRAYLOG_ELASTICSEARCH_SHARDS: "1"
+      GRAYLOG_ELASTICSEARCH_REPLICAS: "0"
+      GRAYLOG_SERVER_JAVA_OPTS: "-Xms1g -Xmx1g -XX:+UseG1GC"
+    volumes:
+      - graylog-data:/usr/share/graylog/data/data
+      - graylog-journal:/usr/share/graylog/data/journal
+    ports:
+      - "${GRAYLOG_PORT:-9000}:9000"
+      - "${GELF_PORT:-12201}:12201/udp"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -f http://127.0.0.1:9000/api/system/lbstatus | grep -qi alive"]
+      interval: 10s
+      timeout: 8s
+      retries: 30
+      start_period: 60s
+    networks:
+      - observability
+
+  # ===========================================================================
+  #  GRAYLOG-INIT - provisionamento automatico do Input GELF UDP
+  #
+  #  Servico de execucao unica (restart: "no"): espera o Graylog ficar saudavel,
+  #  cria o Input GELF apenas se ele ainda nao existir (idempotente), confirma
+  #  que entrou em RUNNING e encerra com sucesso.
+  #
+  #  Sem este servico, o avaliador teria que criar o Input manualmente pela
+  #  interface do Graylog - exatamente o que o projeto precisa evitar.
+  # ===========================================================================
+  graylog-init:
+    image: curlimages/curl:8.9.1
+    container_name: obs-graylog-init
+    restart: "no"
+    environment:
+      GRAYLOG_URL: "http://graylog:9000"
+      GRAYLOG_USER: "admin"
+      GRAYLOG_PASSWORD: "${GRAYLOG_ADMIN_PASSWORD:-admin}"
+      INPUT_TITLE: "GELF UDP - Spring Boot"
+      INPUT_PORT: "12201"
+    volumes:
+      - ./graylog/init/create-gelf-input.sh:/opt/init/create-gelf-input.sh:ro
+    entrypoint: ["sh", "/opt/init/create-gelf-input.sh"]
+    depends_on:
+      graylog:
+        condition: service_healthy
+    networks:
+      - observability

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${app.name}">DevOps Observability Control Center</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
+</head>
+<body>
+
+<a class="skip-link" href="#conteudo">Ir para o conteudo</a>
+
+<header class="topbar">
+    <div class="topbar__inner">
+        <div class="brand">
+            <span class="brand__mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 17l5-5 4 3 5-7 4 4"/>
+                    <path d="M3 21h18"/>
+                </svg>
+            </span>
+            <div class="brand__text">
+                <h1 class="brand__title" th:text="${app.name}">DevOps Observability Control Center</h1>
+                <p class="brand__subtitle">
+                    Painel de automacao, metricas e logs &middot;
+                    <span th:text="'v' + ${app.version}">v1.0.0</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="topbar__meta">
+            <div class="badges">
+                <span class="badge badge--env" th:text="${#strings.toUpperCase(app.environment)}">LOCAL</span>
+                <span class="badge badge--spring">Spring Boot</span>
+                <span class="badge badge--observability">Observability</span>
+            </div>
+            <nav class="quicknav" aria-label="Servicos da stack">
+                <a class="quicknav__link" th:href="${app.links.prometheus}" target="_blank" rel="noopener">Prometheus</a>
+                <a class="quicknav__link" th:href="${app.links.grafana}" target="_blank" rel="noopener">Grafana</a>
+                <a class="quicknav__link" th:href="${app.links.graylog}" target="_blank" rel="noopener">Graylog</a>
+                <a class="quicknav__link" th:href="@{/actuator/prometheus}" target="_blank" rel="noopener">Metricas</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main id="conteudo" class="container">
+
+    <!-- ========================= CARDS DE ESTADO ========================= -->
+    <section class="section" aria-labelledby="titulo-estado">
+        <div class="section__head">
+            <h2 class="section__title" id="titulo-estado">Estado da aplicacao</h2>
+            <div class="section__actions">
+                <span class="hint">Atualizacao automatica a cada 10s</span>
+                <button class="btn btn--ghost" type="button" id="btn-refresh" data-action="refresh">
+                    <span class="btn__label">Atualizar agora</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid--cards">
+            <article class="card">
+                <p class="card__label">Status da aplicacao</p>
+                <p class="card__value">
+                    <span class="dot dot--unknown" id="status-dot" aria-hidden="true"></span>
+                    <span id="card-status">--</span>
+                </p>
+                <p class="card__foot" id="card-host">host: --</p>
+            </article>
+
+            <article class="card">
+                <p class="card__label">Uptime</p>
+                <p class="card__value" id="card-uptime">--</p>
+                <p class="card__foot" id="card-started">iniciada em --</p>
+            </article>
+
+            <article class="card">
+                <p class="card__label">Requisicoes disparadas pelo painel</p>
+                <p class="card__value" id="card-requests">0</p>
+                <p class="card__foot" id="card-logevents">0 eventos de log gerados</p>
+            </article>
+
+            <article class="card card--wide">
+                <p class="card__label">Ultima acao executada</p>
+                <p class="card__value card__value--sm" id="card-last-action">nenhuma acao ainda</p>
+                <p class="card__foot" id="card-last-action-meta">aguardando a primeira interacao</p>
+            </article>
+
+            <article class="card">
+                <p class="card__label">Versao da aplicacao</p>
+                <p class="card__value" id="card-version" th:text="${app.version}">1.0.0</p>
+                <p class="card__foot">artefato Maven / imagem Docker</p>
+            </article>
+
+            <article class="card">
+                <p class="card__label">Ambiente atual</p>
+                <p class="card__value" id="card-environment"
+                   th:text="${#strings.toUpperCase(app.environment)}">LOCAL</p>
+                <p class="card__foot" id="card-jvm">heap -- / --</p>
+            </article>
+        </div>
+    </section>
+
+    <div class="grid grid--split">
+        <!-- ========================= GERAR TRAFEGO ========================= -->
+        <section class="panel" aria-labelledby="titulo-trafego">
+            <div class="panel__head">
+                <h2 class="panel__title" id="titulo-trafego">Gerar trafego</h2>
+                <p class="panel__desc">
+                    Cada botao executa uma requisicao HTTP real no backend. Os status resultantes
+                    alimentam <code>http_server_requests_seconds</code> no Prometheus e os paineis
+                    2xx / 4xx / 5xx do Grafana.
+                </p>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn--ok" type="button" data-action="call" data-endpoint="/api/demo/ok"
+                        data-method="GET" data-label="200 OK">
+                    <span class="btn__label">200 OK</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn--warn" type="button" data-action="call" data-endpoint="/api/demo/bad-request"
+                        data-method="GET" data-label="400 Bad Request">
+                    <span class="btn__label">400 Bad Request</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn--danger" type="button" data-action="call" data-endpoint="/api/demo/error"
+                        data-method="GET" data-label="500 Internal Server Error">
+                    <span class="btn__label">500 Server Error</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <div class="burst">
+                <label class="burst__label" for="burst-count">Rajada automatica de requisicoes</label>
+                <div class="burst__row">
+                    <input class="input" type="number" id="burst-count" min="1" max="200" step="1" value="25"
+                           aria-describedby="burst-help">
+                    <button class="btn btn--primary" type="button" data-action="burst">
+                        <span class="btn__label">Disparar rajada</span>
+                        <span class="spinner" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <p class="burst__help" id="burst-help">
+                    O backend chama os proprios endpoints com uma mistura de 2xx, 4xx e 5xx (limite de
+                    200 por rajada), garantindo series reais nos dashboards.
+                </p>
+                <div class="burst__result" id="burst-result" hidden></div>
+            </div>
+        </section>
+
+        <!-- ========================= GERAR LOGS ========================= -->
+        <section class="panel" aria-labelledby="titulo-logs">
+            <div class="panel__head">
+                <h2 class="panel__title" id="titulo-logs">Gerar logs</h2>
+                <p class="panel__desc">
+                    Os eventos sao emitidos pelo Logback no backend e enviados ao Graylog pelo
+                    appender GELF, com <code>level_name</code>, <code>application</code> e
+                    <code>correlation_id</code> pesquisaveis.
+                </p>
+            </div>
+
+            <div class="btn-row btn-row--grid">
+                <button class="btn btn--level btn--debug" type="button" data-action="log"
+                        data-endpoint="/api/demo/log/debug" data-method="POST" data-label="Log DEBUG">
+                    <span class="btn__label">DEBUG</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn--level btn--info" type="button" data-action="log"
+                        data-endpoint="/api/demo/log/info" data-method="POST" data-label="Log INFO">
+                    <span class="btn__label">INFO</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn--level btn--warnlevel" type="button" data-action="log"
+                        data-endpoint="/api/demo/log/warn" data-method="POST" data-label="Log WARN">
+                    <span class="btn__label">WARN</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn--level btn--errorlevel" type="button" data-action="log"
+                        data-endpoint="/api/demo/log/error" data-method="POST" data-label="Log ERROR">
+                    <span class="btn__label">ERROR</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <div class="gelf-state">
+                <span class="dot dot--unknown" id="gelf-dot" aria-hidden="true"></span>
+                <span id="gelf-state-text">Envio ao Graylog: gere um log para verificar</span>
+            </div>
+
+            <div class="loghint">
+                <p class="loghint__title">Como pesquisar no Graylog</p>
+                <p class="loghint__body">
+                    Em <em>Search</em>, use <code>application:spring-devops-observability</code> e
+                    filtre por nivel com <code>level_name:ERROR</code>.
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <!-- ========================= HISTORICO ========================= -->
+    <section class="section" aria-labelledby="titulo-historico">
+        <div class="section__head">
+            <h2 class="section__title" id="titulo-historico">Historico recente</h2>
+            <span class="hint">Ultimas 15 acoes, medidas no servidor</span>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <caption class="sr-only">Historico das ultimas acoes disparadas pela interface</caption>
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Horario</th>
+                    <th scope="col">Acao</th>
+                    <th scope="col">Endpoint</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Duracao</th>
+                    <th scope="col" class="col-correlation">Correlation id</th>
+                </tr>
+                </thead>
+                <tbody id="history-body">
+                <tr class="table__empty">
+                    <td colspan="7">
+                        Nenhuma acao registrada ainda. Use os botoes acima para gerar trafego ou logs.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ========================= LINKS RAPIDOS ========================= -->
+    <section class="section" aria-labelledby="titulo-links">
+        <div class="section__head">
+            <h2 class="section__title" id="titulo-links">Links rapidos da stack local</h2>
+        </div>
+
+        <div class="grid grid--links">
+            <a class="linkcard" th:href="@{/}">
+                <span class="linkcard__name">Aplicacao</span>
+                <span class="linkcard__url">http://localhost:8080</span>
+                <span class="linkcard__desc">Este painel, servido pelo proprio Spring Boot com Thymeleaf.</span>
+            </a>
+            <a class="linkcard" th:href="${app.links.prometheus}" target="_blank" rel="noopener">
+                <span class="linkcard__name">Prometheus</span>
+                <span class="linkcard__url" th:text="${app.links.prometheus}">http://localhost:9090</span>
+                <span class="linkcard__desc">Confira o target da aplicacao em Status &rarr; Targets.</span>
+            </a>
+            <a class="linkcard" th:href="${app.links.grafana}" target="_blank" rel="noopener">
+                <span class="linkcard__name">Grafana</span>
+                <span class="linkcard__url" th:text="${app.links.grafana}">http://localhost:3000</span>
+                <span class="linkcard__desc">Dashboard "Spring Boot - Application Observability" provisionado.</span>
+            </a>
+            <a class="linkcard" th:href="${app.links.graylog}" target="_blank" rel="noopener">
+                <span class="linkcard__name">Graylog</span>
+                <span class="linkcard__url" th:text="${app.links.graylog}">http://localhost:9000</span>
+                <span class="linkcard__desc">Input GELF UDP 12201 criado automaticamente na subida.</span>
+            </a>
+            <a class="linkcard" th:href="@{/actuator/health}" target="_blank" rel="noopener">
+                <span class="linkcard__name">Actuator health</span>
+                <span class="linkcard__url">/actuator/health</span>
+                <span class="linkcard__desc">Liveness e readiness usados pelo healthcheck do Compose.</span>
+            </a>
+            <a class="linkcard" th:href="@{/actuator/prometheus}" target="_blank" rel="noopener">
+                <span class="linkcard__name">Metricas Prometheus</span>
+                <span class="linkcard__url">/actuator/prometheus</span>
+                <span class="linkcard__desc">Formato de scrape exposto pelo Micrometer.</span>
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>
+        <span th:text="${app.name}">DevOps Observability Control Center</span> &middot;
+        <span th:text="'versao ' + ${app.version}">versao 1.0.0</span> &middot;
+        Spring Boot &middot; Prometheus &middot; Grafana &middot; Graylog
+    </p>
+</footer>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

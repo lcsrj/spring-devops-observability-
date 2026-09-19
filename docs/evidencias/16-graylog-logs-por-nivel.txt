@@ -1,0 +1,40 @@
+# Graylog verificado via API em http://localhost:9000
+# Coletado em 2026-09-17T20:46:44Z
+
+## Input GELF cadastrado (GET /api/system/inputs)
+{"inputs":[{"title":"GELF UDP - Spring Boot"
+"global":true
+"type":"org.graylog2.inputs.gelf.udp.GELFUDPInput"
+"port":12201
+"bind_address":"0.0.0.0"
+
+## Estado do Input (GET /api/system/inputstates)
+"state":"RUNNING"
+"message_input":{"title":"GELF UDP - Spring Boot"
+"type":"org.graylog2.inputs.gelf.udp.GELFUDPInput"
+
+## Contagem de mensagens por busca (ultimos 15 minutos)
+todos os logs da app           total_results=450
+                               query: application:spring-devops-observability
+
+nivel DEBUG                    total_results=13
+                               query: application:spring-devops-observability AND level_name:DEBUG
+
+nivel INFO                     total_results=299
+                               query: application:spring-devops-observability AND level_name:INFO
+
+nivel WARN                     total_results=92
+                               query: application:spring-devops-observability AND level_name:WARN
+
+nivel ERROR                    total_results=46
+                               query: application:spring-devops-observability AND level_name:ERROR
+
+ambiente docker                total_results=450
+                               query: application:spring-devops-observability AND environment:docker
+
+versao 1.0.0                   total_results=450
+                               query: application:spring-devops-observability AND version:1.0.0
+
+com correlation_id             total_results=430
+                               query: application:spring-devops-observability AND _exists_:correlation_id
+

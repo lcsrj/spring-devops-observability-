@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Configuracao de logging da aplicacao.
+
+  - CONSOLE: sempre ativo (visivel em `docker compose logs app`).
+  - GELF/UDP: ativo somente no perfil `docker`, que e o perfil usado pelo Compose. Assim
+    `mvn test` e a execucao local avulsa nao dependem do Graylog, enquanto o container
+    passa a enviar logs automaticamente, sem nenhum passo manual.
+
+  O gate e feito com <springProfile>, nativo do Spring Boot, evitando a dependencia
+  Janino que as tags <if> do Logback exigiriam.
+
+  O transporte UDP e intencional: e fire-and-forget, portanto a aplicacao nunca bloqueia
+  nem falha ao subir se o Graylog ainda estiver inicializando.
+-->
+<configuration scan="false">
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProperty scope="context" name="appName" source="spring.application.name"
+                    defaultValue="spring-devops-observability"/>
+    <springProperty scope="context" name="appVersion" source="app.version" defaultValue="dev"/>
+    <springProperty scope="context" name="appEnvironment" source="app.environment" defaultValue="local"/>
+
+    <springProfile name="docker">
+        <appender name="GELF_UDP" class="de.siegmar.logbackgelf.GelfUdpAppender">
+            <graylogHost>${GRAYLOG_HOST:-graylog}</graylogHost>
+            <graylogPort>${GRAYLOG_PORT:-12201}</graylogPort>
+            <maxChunkSize>508</maxChunkSize>
+            <compressionMethod>GZIP</compressionMethod>
+            <messageIdSupplier class="de.siegmar.logbackgelf.MessageIdSupplier"/>
+
+            <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+                <originHost>${HOSTNAME:-spring-app}</originHost>
+                <includeRawMessage>false</includeRawMessage>
+                <includeMarker>true</includeMarker>
+                <includeMdcData>true</includeMdcData>
+                <includeCallerData>false</includeCallerData>
+                <includeRootCauseData>true</includeRootCauseData>
+                <!-- Publica o campo `level_name` (DEBUG/INFO/WARN/ERROR), pesquisavel no Graylog. -->
+                <includeLevelName>true</includeLevelName>
+                <levelNameKey>level_name</levelNameKey>
+                <loggerNameKey>logger_name</loggerNameKey>
+                <threadNameKey>thread_name</threadNameKey>
+
+                <shortMessageLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%nopex</pattern>
+                </shortMessageLayout>
+                <fullMessageLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%n%xEx</pattern>
+                </fullMessageLayout>
+
+                <staticField>application:${appName}</staticField>
+                <staticField>environment:${appEnvironment}</staticField>
+                <staticField>version:${appVersion}</staticField>
+                <staticField>stack:spring-devops-observability</staticField>
+            </encoder>
+        </appender>
+
+        <!--
+          Wrapper assincrono, registrado com o nome "GELF": a aplicacao consulta
+          root.getAppender("GELF") para informar na interface, sem chutar, se o envio ao
+          Graylog esta realmente ativo.
+        -->
+        <appender name="GELF" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="GELF_UDP"/>
+            <queueSize>2048</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <neverBlock>true</neverBlock>
+            <includeCallerData>false</includeCallerData>
+        </appender>
+    </springProfile>
+
+    <logger name="br.com.devops.observability" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <springProfile name="docker">
+            <appender-ref ref="GELF"/>
+        </springProfile>
+    </root>
+
+</configuration>

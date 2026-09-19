@@ -1,0 +1,32 @@
+# Build local e artefatos gerados
+target/
+**/target/
+*.jar
+*.war
+
+# Controle de versao e CI (nao fazem parte do build da imagem)
+.git/
+.gitignore
+.github/
+
+# IDEs e sistema operacional
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Infraestrutura da stack local: nao entra na imagem da aplicacao
+docker-compose.yml
+docker-compose.override.yml
+prometheus/
+grafana/
+graylog/
+scripts/
+docs/
+
+# Documentacao e segredos locais
+*.md
+.env
+.env.*
+!.env.example

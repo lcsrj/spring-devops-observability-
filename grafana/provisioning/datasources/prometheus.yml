@@ -1,0 +1,19 @@
+# =============================================================================
+#  Data source provisionado automaticamente.
+#  O avaliador NAO precisa cadastrar nada pela interface do Grafana.
+# =============================================================================
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      # Alinhado ao scrape_interval do prometheus.yml, para taxas corretas.
+      timeInterval: 5s
+      manageAlerts: false

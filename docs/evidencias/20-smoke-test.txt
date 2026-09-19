@@ -1,0 +1,49 @@
+SMOKE TEST - DevOps Observability Control Center
+  app        http://localhost:8080
+  prometheus http://localhost:9090
+  grafana    http://localhost:3001
+  graylog    http://localhost:9000
+
+== 1. Aplicacao Spring Boot ==
+  GET / entrega a interface web                              OK - HTTP 200
+  a interface contem o painel de trafego                     OK - 'Gerar trafego' presente
+  a interface contem o painel de logs                        OK - 'Gerar logs' presente
+  CSS proprio e servido pela aplicacao                       OK - HTTP 200
+  JS proprio e servido pela aplicacao                        OK - HTTP 200
+  GET /api/status responde                                   OK - HTTP 200
+  GET /api/status reporta status UP                          OK - '"status":"UP"' presente
+  GET /api/history responde                                  OK - HTTP 200
+
+== 2. Endpoints de demonstracao ==
+  GET /api/demo/ok devolve 200                               OK - HTTP 200
+  GET /api/demo/bad-request devolve 400                      OK - HTTP 400
+  GET /api/demo/error devolve 500                            OK - HTTP 500
+
+== 3. Spring Boot Actuator ==
+  /actuator/health responde                                  OK - HTTP 200
+  /actuator/health reporta UP                                OK - '"status":"UP"' presente
+  /actuator/health/readiness responde                        OK - HTTP 200
+  /actuator/info responde                                    OK - HTTP 200
+  /actuator/prometheus responde                              OK - HTTP 200
+
+== 3b. Superficie administrativa minima (nao deve estar exposta) ==
+  /actuator/env nao esta exposto                             OK - HTTP 404
+  /actuator/beans nao esta exposto                           OK - HTTP 404
+  /actuator/heapdump nao esta exposto                        OK - HTTP 404
+
+== 4. Prometheus ==
+  Prometheus esta acessivel                                  OK - HTTP 200
+  Prometheus esta pronto para consultas                      OK - HTTP 200
+  a API de query do Prometheus responde                      OK - HTTP 200
+
+== 5. Grafana ==
+  Grafana esta acessivel                                     OK - HTTP 200
+  o banco interno do Grafana esta ok                         OK - '"database"' presente
+  a pagina de login do Grafana carrega                       OK - HTTP 200
+
+== 6. Graylog ==
+  Graylog esta acessivel                                     OK - HTTP 200
+  Graylog reporta estar vivo                                 OK - 'ALIVE' presente
+  a interface web do Graylog carrega                         OK - HTTP 200
+
+RESULTADO: 28/28 verificacoes passaram

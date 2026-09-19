@@ -1,0 +1,16 @@
+# Exemplo de mensagem ERROR realmente indexada no Graylog
+# Coletado em 2026-09-17T20:46:45Z
+
+"demo_level":"ERROR"
+"source":"spring-app"
+"logger_name":"br.com.devops.observability.demo.LogGenerator"
+"timestamp":"2026-09-17T20:46:11.320Z"
+"level":3
+"version":"1.0.0"
+"environment":"docker"
+"level_name":"ERROR"
+"root_cause_class_name":"java.lang.IllegalStateException"
+"application":"spring-devops-observability"
+"thread_name":"http-nio-8080-exec-2"
+"correlation_id":"7248dc58-666e-4aec-a99f-eb38f31b0ccd"
+"total_results":46

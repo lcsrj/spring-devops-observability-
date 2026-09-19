@@ -1,0 +1,106 @@
+AUDITORIA DA STACK - DevOps Observability Control Center
+  projeto: /c/Users/User/Downloads/spring-devops-observability
+
+== 1. Arquivos obrigatorios do repositorio ==
+  Dockerfile                                                 OK - presente
+  docker-compose.yml                                         OK - presente
+  pom.xml                                                    OK - presente
+  .dockerignore                                              OK - presente
+  .gitignore                                                 OK - presente
+  .env.example                                               OK - presente
+  README.md                                                  OK - presente
+  EVIDENCIAS.md                                              OK - presente
+  prometheus/prometheus.yml                                  OK - presente
+  grafana: datasource provisionado                           OK - presente
+  grafana: provider de dashboards                            OK - presente
+  grafana: JSON do dashboard                                 OK - presente
+  graylog: script de init do Input GELF                      OK - presente
+  workflow de CI/CD                                          OK - presente
+  application.yml                                            OK - presente
+  logback-spring.xml                                         OK - presente
+  template da interface                                      OK - presente
+  CSS proprio                                                OK - presente
+  JS proprio                                                 OK - presente
+  diretorio de testes                                        OK - presente
+  diretorio de evidencias                                    OK - presente
+
+== 2. Dockerfile MULTISTAGE (requisito eliminatorio) ==
+  o Dockerfile declara 2 ou mais estagios                    OK - 2 estagios FROM declarados
+  estagio 1 usa JDK + Maven                                  OK - estagio de build usa imagem JDK+Maven
+  estagio 1 compila e roda os testes                         OK - mvn package (executa os testes) presente no estagio de build
+  estagio 2 usa imagem apenas com JRE                        OK - estagio de runtime usa imagem apenas-JRE
+  estagio 2 copia somente o .jar                             OK - runtime recebe apenas o .jar do estagio de build
+  estagio 2 nao roda como root                               OK - processo roda com usuario sem privilegios
+
+== 2b. Inspecao da IMAGEM construida (spring-devops-observability:1.0.0) ==
+  a imagem da aplicacao existe                               OK - imagem encontrada localmente
+  a imagem final contem o .jar                               OK - /app/app.jar presente
+  a imagem final NAO tem mvn/javac/jar                       OK - sem mvn/javac/jar na imagem final
+  a imagem final NAO tem codigo-fonte                        OK - nenhum .java nem pom.xml na imagem final
+
+== 3. Containers da stack ==
+  container app healthy                                      OK - healthy
+  container prometheus healthy                               OK - healthy
+  container grafana healthy                                  OK - healthy
+  container mongodb healthy                                  OK - healthy
+  container opensearch healthy                               OK - healthy
+  container graylog healthy                                  OK - healthy
+  graylog-init concluiu com sucesso                          OK - concluido com exit 0 (idempotente)
+
+== 4. Endpoints da aplicacao ==
+  GET / (interface web)                                      OK - HTTP 200
+  GET /api/status                                            OK - HTTP 200
+  GET /api/history                                           OK - HTTP 200
+  GET /api/demo/ok -> 200                                    OK - HTTP 200
+  GET /api/demo/bad-request -> 400                           OK - HTTP 400
+  GET /api/demo/error -> 500                                 OK - HTTP 500
+  /actuator/health -> UP                                     OK - '"status":"UP"' presente
+  /actuator/info                                             OK - HTTP 200
+  /actuator/prometheus                                       OK - HTTP 200
+  POST /api/demo/log/debug                                   OK - HTTP 200
+  POST /api/demo/log/info                                    OK - HTTP 200
+  POST /api/demo/log/warn                                    OK - HTTP 200
+  POST /api/demo/log/error                                   OK - HTTP 200
+  POST /api/demo/traffic (rajada real)                       OK - HTTP 200
+
+== 5. Prometheus: target UP e metricas essenciais ==
+  target spring-boot-app esta UP                             OK - health=UP
+  memoria Heap da JVM (usada)                                OK - valor = 35063944
+  memoria Heap da JVM (maxima)                               OK - valor = 5528354816
+  memoria Heap da JVM (comprometida)                         OK - valor = 123797504
+  uso de CPU do processo                                     OK - valor = 0.0004988360492184902
+  threads vivas da JVM                                       OK - valor = 23
+  uptime do processo                                         OK - valor = 161.954
+  total de requisicoes HTTP                                  OK - valor = 365
+  RPS (taxa de requisicoes)                                  OK - valor = 1.3320876541535516
+  requisicoes 2xx                                            OK - valor = 287
+  requisicoes 4xx                                            OK - valor = 55
+  requisicoes 5xx                                            OK - valor = 23
+  tempo de resposta (buckets p/ percentis)                   OK - valor = 0.01645934421342039
+  tag comum application presente                             OK - valor = 2
+  contador proprio de eventos de log                         OK - valor = 28
+
+== 6. Grafana: data source e dashboard provisionados ==
+  data source Prometheus provisionado                        OK - data source Prometheus provisionado
+  o data source alcanca o Prometheus                         OK - Grafana consegue consultar o Prometheus
+  dashboard provisionado automaticamente                     OK - dashboard carregado automaticamente
+  o dashboard tem paineis suficientes                        OK - 17 paineis no dashboard
+  os paineis retornam metricas reais                         OK - consulta do dashboard devolve dados reais
+
+== 7. Graylog: Input GELF e logs pesquisaveis ==
+  aguardando indexacao dos logs no Graylog OK - 460 mensagens
+  Input GELF UDP existe                                      OK - Input GELF UDP cadastrado
+  Input GELF UDP esta RUNNING                                OK - Input em estado RUNNING
+  logs da aplicacao indexados                                OK - 485 mensagem(ns) indexada(s)
+  campo environment presente nos logs                        OK - 485 mensagem(ns) indexada(s)
+  campo version presente nos logs                            OK - 485 mensagem(ns) indexada(s)
+  correlation_id presente nos logs                           OK - 465 mensagem(ns) indexada(s)
+  logs de nivel DEBUG pesquisaveis                           OK - 14 mensagem(ns) indexada(s)
+  logs de nivel INFO pesquisaveis                            OK - 318 mensagem(ns) indexada(s)
+  logs de nivel WARN pesquisaveis                            OK - 102 mensagem(ns) indexada(s)
+  logs de nivel ERROR pesquisaveis                           OK - 51 mensagem(ns) indexada(s)
+
+== 8. Suite de testes automatizados ==
+  mvn test (suite completa)                                  OK - [INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0
+
+RESULTADO: 83/83 verificacoes passaram
