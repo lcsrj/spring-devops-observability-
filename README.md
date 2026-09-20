@@ -52,7 +52,7 @@ Demonstrar, de ponta a ponta e de forma reproduzível, uma esteira DevOps/DevSec
 |---|---|
 | **Aplicação** | API + **interface web** servida pelo próprio Spring Boot (Thymeleaf, CSS e JS próprios, sem CDN) |
 | **Automação de build** | `Dockerfile` **multistage** (JDK+Maven para build e testes → JRE enxuto para runtime) |
-| **CI/CD** | Workflow GitHub Actions versionado: configurado para compilar, testar, construir a imagem e publicar no GitHub Container Registry; não executado no fechamento desta entrega |
+| **CI/CD** | GitHub Actions validado em execução real: build/testes, Compose lint, build e validação da imagem Docker e Trivy concluídos com sucesso. O push ao GHCR permanece condicionado a `push` na `main`. |
 | **Métricas** | Spring Boot Actuator + Micrometer expostos em `/actuator/prometheus`, coletados pelo Prometheus |
 | **Visualização** | Grafana com data source e dashboard **provisionados automaticamente** |
 | **Logs** | Logback + appender **GELF** enviando para o Graylog (MongoDB + OpenSearch), com Input criado automaticamente |
@@ -545,9 +545,9 @@ docker run --rm -v "$PWD":/workspace -w /workspace \
   maven:3.9.9-eclipse-temurin-21 mvn -B -ntp test
 ```
 
-Os testes também rodam **dentro do build da imagem** (`mvn package` no estágio 1). O
-workflow GitHub Actions versionado também está configurado para executá-los, mas não foi
-executado no fechamento desta entrega. Se um teste falhar, o build da imagem falha.
+Os testes também rodam **dentro do build da imagem** (`mvn package` no estágio 1). A execução
+real do GitHub Actions **CI/CD #1** também executou a suíte com sucesso. Se um teste falhar,
+o build da imagem falha.
 
 ---
 
@@ -619,17 +619,23 @@ arquivos .java / pom.xml na imagem final -> 0
 usuário do processo -> uid=100(spring) gid=101(spring)
 ```
 
-O `verify-stack.sh` executa essas checagens localmente. O workflow GitHub Actions versionado
-contém validações equivalentes, mas não foi executado no fechamento desta entrega. As
-checagens **falham** se qualquer ferramenta de build vazar para o runtime.
+O `verify-stack.sh` executa essas checagens localmente. A execução real do GitHub Actions
+**CI/CD #1** também validou a imagem de runtime e os endpoints com sucesso. As checagens
+**falham** se qualquer ferramenta de build vazar para o runtime.
 
 ---
 
 ## 13. Pipeline CI/CD
 
-> **Estado desta entrega:** o workflow abaixo está versionado como parte do requisito acadêmico,
-> mas **não foi executado no fechamento deste repositório**. As validações desta entrega foram
-> feitas localmente com Docker, Maven em contêiner, smoke tests e `verify-stack.sh`.
+> **Estado desta entrega:** o workflow foi executado manualmente uma vez para comprovar seu
+> funcionamento. A execução **CI/CD #1** terminou com `success` em 2m36s no commit
+> `bfde58d3bd1666bf491d9fc1deef70d343c21557`, com os quatro jobs concluídos com sucesso.
+>
+> Execução: https://github.com/lcsrj/spring-devops-observability-/actions/runs/35485113822
+>
+> Como o evento foi `workflow_dispatch`, a imagem foi construída e validada, mas a autenticação
+> e o push ao GHCR foram propositalmente ignorados. O workflow continua configurado para publicar
+> automaticamente no GHCR quando o evento for um `push` na `main`.
 
 Arquivo: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)
 
@@ -647,6 +653,20 @@ Arquivo: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)
 | **compose-lint** | valida `docker compose config`, confirma que os 7 serviços obrigatórios existem e **falha se alguma imagem usar a tag `latest`** |
 | **docker** | Buildx → metadata/tags → build com o `Dockerfile` **multistage** → **valida que a imagem de runtime está enxuta** (sem mvn/javac/jar e sem código-fonte) → sobe a aplicação e testa os endpoints (200/400/500 e `/actuator/prometheus`) → publica no GHCR |
 | **security-scan** | Trivy em três frentes: dependências/configuração do repositório, imagem Docker de runtime e varredura de segredos (`continue-on-error`, para não bloquear os requisitos obrigatórios) |
+
+### Evidência da execução CI/CD #1
+
+| Item | Resultado |
+|---|---|
+| Run | [CI/CD #1](https://github.com/lcsrj/spring-devops-observability-/actions/runs/35485113822) |
+| Evento | `workflow_dispatch` |
+| Duração | 2m36s |
+| Commit | `bfde58d3bd1666bf491d9fc1deef70d343c21557` |
+| Build e testes (JDK 21) | ✅ success |
+| Validar docker-compose.yml | ✅ success |
+| Imagem Docker e validação | ✅ success |
+| Varredura de segurança (Trivy) | ✅ success |
+| Push ao GHCR nesta execução | Não realizado — o workflow só publica em `push` na `main` |
 
 ### Registry e permissões
 
@@ -690,8 +710,9 @@ ghcr.io/lcsrj/spring-devops-observability:1.0.0
 ```
 
 O nome da imagem é propositalmente mantido **sem o hífen final do nome do repositório**.
-Nenhuma nova publicação no GHCR foi realizada durante o fechamento desta entrega e este
-README não apresenta uma imagem nova como se tivesse sido publicada.
+Na execução manual **CI/CD #1**, a imagem foi construída e validada, mas não publicada porque
+o evento foi `workflow_dispatch`. O workflow permanece configurado para publicar no GHCR
+automaticamente quando houver um `push` na `main`.
 
 Se o workflow for executado futuramente, os comandos esperados serão:
 
