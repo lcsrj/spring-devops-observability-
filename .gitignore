@@ -48,3 +48,6 @@ logs/
 # ----- Artefatos de execucao da stack -----
 docker-compose.override.yml
 .stack-logs/
+
+# ----- Artefatos de analise local -----
+graphify-out/

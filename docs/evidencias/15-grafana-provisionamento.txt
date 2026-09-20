@@ -1,5 +1,5 @@
 # Provisionamento do Grafana verificado via API em http://localhost:3001
-# Coletado em 2026-09-17T20:46:44Z
+# Coletado em 2026-09-20T02:13:07Z
 
 ## Data source provisionado (GET /api/datasources/uid/prometheus)
 {"id":1,"uid":"prometheus","orgId":1,"name":"Prometheus","type":"prometheus","typeLogoUrl":"public/app/plugins/datasource/prometheus/img/prometheus_logo.svg","access":"proxy","url":"http://prometheus:9090","user":"","database":"","basicAuth":false,"basicAuthUser":"","withCredentials":false,"isDefault":true,"jsonData":{"httpMethod":"POST","manageAlerts":false,"timeInterval":"5s"},"secureJsonFields":{},"version":1,"readOnly":true,"apiVersion":""}
@@ -32,6 +32,8 @@
 "type":"timeseries"}
 "title":"Requisicoes por endpoint"
 "type":"timeseries"}
+"title":"Tempo medio de resposta por familia HTTP"
+"type":"timeseries"}
 "title":"JVM e processo"
 "type":"row"}
 "title":"Memoria Heap da JVM (usada / comprometida / maxima)"
@@ -45,5 +47,5 @@
 "title":"Spring Boot — Application Observability"
 
 ## Consulta de painel devolvendo dados reais (POST /api/ds/query)
-{"results":{"A":{"status":200,"frames":[{"schema":{"refId":"A","meta":{"type":"numeric-multi","typeVersion":[0,1],"custom":{"resultType":"vector"},"executedQueryString":"Expr: sum(jvm_memory_used_bytes{job=\"spring-boot-app\",area=\"heap\"})\nStep: 5s"},"fields":[{"name":"Time","type":"time","typeInfo":{"frame":"time.Time"},"config":{"interval":5000}},{"name":"Value","type":"number","typeInfo":{"frame":"float64"},"labels":{},"config":{"displayNameFromDS":"sum(jvm_memory_used_bytes{job=\"spring-boot-app\",area=\"heap\"})"}}]},"data":{"values":[[1789678004395],[47776288]]}}]}}}
+{"results":{"A":{"status":200,"frames":[{"schema":{"refId":"A","meta":{"type":"numeric-multi","typeVersion":[0,1],"custom":{"resultType":"vector"},"executedQueryString":"Expr: sum(jvm_memory_used_bytes{job=\"spring-boot-app\",area=\"heap\"})\nStep: 5s"},"fields":[{"name":"Time","type":"time","typeInfo":{"frame":"time.Time"},"config":{"interval":5000}},{"name":"Value","type":"number","typeInfo":{"frame":"float64"},"labels":{},"config":{"displayNameFromDS":"sum(jvm_memory_used_bytes{job=\"spring-boot-app\",area=\"heap\"})"}}]},"data":{"values":[[1789870388106],[42826136]]}}]}}}
 

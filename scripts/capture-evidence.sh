@@ -110,17 +110,15 @@ shot "03-prometheus-grafico-rps.png" \
 # o proprio Docker em seguida. Foi reproduzido aqui: o dump se chamava
 # `wsl-crash-..._usr_lib_chromium_chromium-5.dmp`.
 #
-# Nenhuma evidencia e perdida: o funcionamento do Graylog e comprovado pela API,
-# que e prova mais forte que um screenshot - `11-graylog-init-logs.txt` (Input
-# GELF criado e idempotente), `16-graylog-logs-por-nivel.txt` (DEBUG/INFO/WARN/
-# ERROR pesquisaveis) e `17-graylog-mensagem-exemplo.txt` (todos os campos da
-# mensagem, com stack trace).
+# A API continua registrando a evidencia tecnica complementar, mas a rubrica exige
+# tambem uma captura visual real. Quando ela nao puder ser feita com seguranca neste
+# ambiente, a acao manual esta documentada em EVIDENCIAS.md.
 #
 # Para tentar a captura mesmo assim:  CAPTURE_GRAYLOG_UI=1 ./scripts/capture-evidence.sh
 if [ "${CAPTURE_GRAYLOG_UI:-0}" = "1" ]; then
-    shot "04-graylog-interface.png" "${GRAYLOG_URL}/" 1400 900 3000 30
+    shot "04-graylog-logs.png" "${GRAYLOG_URL}/search?q=application%3Aspring-devops-observability" 1400 900 3000 30
 else
-    printf '  %-42s ' "04-graylog-interface.png"
+    printf '  %-42s ' "04-graylog-logs.png"
     warn_inline "ignorada (CAPTURE_GRAYLOG_UI=0; derruba a VM do WSL)"
 fi
 
@@ -203,7 +201,12 @@ prom_metrics_report() {
     echo ""
     while IFS='|' read -r label query; do
         [ -z "${label}" ] && continue
-        printf '%-34s %s\n' "${label}" "$(prom_query "${query}")"
+        value="$(prom_query "${query}")"
+        if [ -n "${value}" ]; then
+            printf '%-34s %s\n' "${label}" "${value}"
+        else
+            printf '%s\n' "${label}"
+        fi
         printf '%-34s %s\n\n' "  promql:" "${query}"
     done <<'QUERIES'
 target UP|up{job="spring-boot-app"}
@@ -218,6 +221,9 @@ RPS (1m)|sum(rate(http_server_requests_seconds_count{job="spring-boot-app"}[1m])
 requisicoes 2xx|sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"2.."})
 requisicoes 4xx|sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"4.."})
 requisicoes 5xx|sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"5.."})
+latencia media 2xx (s)|sum(rate(http_server_requests_seconds_sum{job="spring-boot-app",status=~"2.."}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app",status=~"2.."}[1m])), 0.0001)
+latencia media 4xx (s)|sum(rate(http_server_requests_seconds_sum{job="spring-boot-app",status=~"4.."}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app",status=~"4.."}[1m])), 0.0001)
+latencia media 5xx (s)|sum(rate(http_server_requests_seconds_sum{job="spring-boot-app",status=~"5.."}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app",status=~"5.."}[1m])), 0.0001)
 latencia media (s)|sum(rate(http_server_requests_seconds_sum{job="spring-boot-app"}[5m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app"}[5m])), 0.0001)
 latencia p95 (s)|histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="spring-boot-app"}[5m])))
 eventos de log gerados|sum(app_demo_log_events_total{job="spring-boot-app"})

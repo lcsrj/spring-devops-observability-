@@ -7,7 +7,7 @@
   "editable": true,
   "graphTooltip": 1,
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "refresh": "10s",
   "time": {
     "from": "now-30m",
@@ -439,11 +439,71 @@
       }
     },
     {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Tempo medio de resposta por familia HTTP",
+      "description": "Latencia media calculada por familia de status (2xx, 4xx e 5xx) a partir de http_server_requests_seconds_sum / _count.",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 25 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(http_server_requests_seconds_sum{job=\"$job\", status=~\"2..\"}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job=\"$job\", status=~\"2..\"}[1m])), 0.0001)",
+          "legendFormat": "2xx sucesso"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(http_server_requests_seconds_sum{job=\"$job\", status=~\"4..\"}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job=\"$job\", status=~\"4..\"}[1m])), 0.0001)",
+          "legendFormat": "4xx erro de cliente"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(http_server_requests_seconds_sum{job=\"$job\", status=~\"5..\"}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job=\"$job\", status=~\"5..\"}[1m])), 0.0001)",
+          "legendFormat": "5xx erro de servidor"
+        }
+      ],
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "calcs": ["mean", "max", "lastNotNull"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 4,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisLabel": "segundos"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "2xx sucesso" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "4xx erro de cliente" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "5xx erro de servidor" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+          }
+        ]
+      }
+    },
+    {
       "type": "row",
       "id": 102,
       "title": "JVM e processo",
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 34 },
       "panels": []
     },
     {
@@ -452,7 +512,7 @@
       "title": "Memoria Heap da JVM (usada / comprometida / maxima)",
       "description": "jvm_memory_used_bytes, jvm_memory_committed_bytes e jvm_memory_max_bytes com area=heap.",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 26 },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 35 },
       "targets": [
         {
           "refId": "A",
@@ -517,7 +577,7 @@
       "title": "Uso de CPU (processo da aplicacao e sistema)",
       "description": "process_cpu_usage e system_cpu_usage expostos pelo Micrometer.",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 26 },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 35 },
       "targets": [
         {
           "refId": "A",
@@ -567,7 +627,7 @@
       "title": "Threads e memoria nao-heap da JVM",
       "description": "jvm_threads_live_threads, jvm_threads_daemon_threads e memoria fora do heap (metaspace, code cache).",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 35 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 44 },
       "targets": [
         {
           "refId": "A",
@@ -621,7 +681,7 @@
       "title": "Eventos de log gerados por nivel",
       "description": "Contador proprio da aplicacao (app_demo_log_events_total). Cada evento tambem e enviado ao Graylog via GELF.",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 35 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 44 },
       "targets": [
         {
           "refId": "A",

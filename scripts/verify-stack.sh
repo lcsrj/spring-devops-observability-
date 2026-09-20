@@ -248,6 +248,9 @@ check "RPS (taxa de requisicoes)"                metric_has_value 'sum(rate(http
 check "requisicoes 2xx"                          metric_has_value 'sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"2.."})'
 check "requisicoes 4xx"                          metric_has_value 'sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"4.."})'
 check "requisicoes 5xx"                          metric_has_value 'sum(http_server_requests_seconds_count{job="spring-boot-app",status=~"5.."})'
+check "latencia media 2xx"                       metric_has_value 'sum(rate(http_server_requests_seconds_sum{job="spring-boot-app",status=~"2.."}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app",status=~"2.."}[1m])), 0.0001)'
+check "latencia media 4xx"                       metric_has_value 'sum(rate(http_server_requests_seconds_sum{job="spring-boot-app",status=~"4.."}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app",status=~"4.."}[1m])), 0.0001)'
+check "latencia media 5xx"                       metric_has_value 'sum(rate(http_server_requests_seconds_sum{job="spring-boot-app",status=~"5.."}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app",status=~"5.."}[1m])), 0.0001)'
 check "tempo de resposta (buckets p/ percentis)" metric_has_value 'histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="spring-boot-app"}[5m])))'
 check "tag comum application presente"           metric_has_value 'count(up{job="spring-boot-app"}) + count(process_uptime_seconds{application="spring-devops-observability"})'
 check "contador proprio de eventos de log"       metric_has_value 'sum(app_demo_log_events_total{job="spring-boot-app"})'
@@ -286,8 +289,19 @@ grafana_dashboard_panel_count() {
     local n
     n="$(curl -s --max-time 15 -u "${GF_AUTH}" "${GRAFANA_URL}/api/dashboards/uid/spring-observability" \
         | grep -o '"gridPos"' | wc -l | tr -d ' \r')"
-    [ "${n}" -ge 10 ] && { echo "${n} paineis no dashboard"; return 0; }
+    [ "${n}" -ge 15 ] && { echo "${n} paineis no dashboard"; return 0; }
     echo "apenas ${n} paineis encontrados"; return 1
+}
+
+grafana_http_latency_panel() {
+    local body
+    body="$(curl -s --max-time 15 -u "${GF_AUTH}" "${GRAFANA_URL}/api/dashboards/uid/spring-observability")"
+    echo "${body}" | grep -q 'Tempo medio de resposta por familia HTTP' \
+        && echo "${body}" | grep -q 'status=~\\"2..\\"' \
+        && echo "${body}" | grep -q 'status=~\\"4..\\"' \
+        && echo "${body}" | grep -q 'status=~\\"5..\\"' \
+        && { echo "painel de latencia 2xx/4xx/5xx provisionado"; return 0; }
+    echo "painel de latencia por familia HTTP ausente ou incompleto"; return 1
 }
 
 grafana_query_returns_data() {
@@ -307,6 +321,7 @@ check "data source Prometheus provisionado"      grafana_datasource
 check "o data source alcanca o Prometheus"       grafana_datasource_reaches_prometheus
 check "dashboard provisionado automaticamente"   grafana_dashboard
 check "o dashboard tem paineis suficientes"      grafana_dashboard_panel_count
+check "painel de latencia HTTP por familia"      grafana_http_latency_panel
 check "os paineis retornam metricas reais"       grafana_query_returns_data
 
 # =============================================================================

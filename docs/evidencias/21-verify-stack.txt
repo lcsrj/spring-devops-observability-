@@ -1,5 +1,5 @@
 AUDITORIA DA STACK - DevOps Observability Control Center
-  projeto: /c/Users/User/Downloads/spring-devops-observability
+  projeto: /c/Users/User/Desktop/spring-devops-observability-
 
 == 1. Arquivos obrigatorios do repositorio ==
   Dockerfile                                                 OK - presente
@@ -65,42 +65,46 @@ AUDITORIA DA STACK - DevOps Observability Control Center
 
 == 5. Prometheus: target UP e metricas essenciais ==
   target spring-boot-app esta UP                             OK - health=UP
-  memoria Heap da JVM (usada)                                OK - valor = 35063944
+  memoria Heap da JVM (usada)                                OK - valor = 26826576
   memoria Heap da JVM (maxima)                               OK - valor = 5528354816
   memoria Heap da JVM (comprometida)                         OK - valor = 123797504
-  uso de CPU do processo                                     OK - valor = 0.0004988360492184902
+  uso de CPU do processo                                     OK - valor = 0.002672456990145315
   threads vivas da JVM                                       OK - valor = 23
-  uptime do processo                                         OK - valor = 161.954
-  total de requisicoes HTTP                                  OK - valor = 365
-  RPS (taxa de requisicoes)                                  OK - valor = 1.3320876541535516
-  requisicoes 2xx                                            OK - valor = 287
-  requisicoes 4xx                                            OK - valor = 55
-  requisicoes 5xx                                            OK - valor = 23
-  tempo de resposta (buckets p/ percentis)                   OK - valor = 0.01645934421342039
+  uptime do processo                                         OK - valor = 104.543
+  total de requisicoes HTTP                                  OK - valor = 51
+  RPS (taxa de requisicoes)                                  OK - valor = 0.7735336598401764
+  requisicoes 2xx                                            OK - valor = 46
+  requisicoes 4xx                                            OK - valor = 4
+  requisicoes 5xx                                            OK - valor = 1
+  latencia media 2xx                                         OK - valor = 0.009148139785564908
+  latencia media 4xx                                         OK - valor = 0
+  latencia media 5xx                                         OK - valor = 0
+  tempo de resposta (buckets p/ percentis)                   OK - valor = 0.02046746069137629
   tag comum application presente                             OK - valor = 2
-  contador proprio de eventos de log                         OK - valor = 28
+  contador proprio de eventos de log                         OK - valor = 4
 
 == 6. Grafana: data source e dashboard provisionados ==
   data source Prometheus provisionado                        OK - data source Prometheus provisionado
   o data source alcanca o Prometheus                         OK - Grafana consegue consultar o Prometheus
   dashboard provisionado automaticamente                     OK - dashboard carregado automaticamente
-  o dashboard tem paineis suficientes                        OK - 17 paineis no dashboard
+  o dashboard tem paineis suficientes                        OK - 18 paineis no dashboard
+  painel de latencia HTTP por familia                        OK - painel de latencia 2xx/4xx/5xx provisionado
   os paineis retornam metricas reais                         OK - consulta do dashboard devolve dados reais
 
 == 7. Graylog: Input GELF e logs pesquisaveis ==
-  aguardando indexacao dos logs no Graylog OK - 460 mensagens
+  aguardando indexacao dos logs no Graylog OK - 173 mensagens
   Input GELF UDP existe                                      OK - Input GELF UDP cadastrado
   Input GELF UDP esta RUNNING                                OK - Input em estado RUNNING
-  logs da aplicacao indexados                                OK - 485 mensagem(ns) indexada(s)
-  campo environment presente nos logs                        OK - 485 mensagem(ns) indexada(s)
-  campo version presente nos logs                            OK - 485 mensagem(ns) indexada(s)
-  correlation_id presente nos logs                           OK - 465 mensagem(ns) indexada(s)
-  logs de nivel DEBUG pesquisaveis                           OK - 14 mensagem(ns) indexada(s)
-  logs de nivel INFO pesquisaveis                            OK - 318 mensagem(ns) indexada(s)
-  logs de nivel WARN pesquisaveis                            OK - 102 mensagem(ns) indexada(s)
-  logs de nivel ERROR pesquisaveis                           OK - 51 mensagem(ns) indexada(s)
+  logs da aplicacao indexados                                OK - 173 mensagem(ns) indexada(s)
+  campo environment presente nos logs                        OK - 173 mensagem(ns) indexada(s)
+  campo version presente nos logs                            OK - 173 mensagem(ns) indexada(s)
+  correlation_id presente nos logs                           OK - 155 mensagem(ns) indexada(s)
+  logs de nivel DEBUG pesquisaveis                           OK - 6 mensagem(ns) indexada(s)
+  logs de nivel INFO pesquisaveis                            OK - 116 mensagem(ns) indexada(s)
+  logs de nivel WARN pesquisaveis                            OK - 34 mensagem(ns) indexada(s)
+  logs de nivel ERROR pesquisaveis                           OK - 17 mensagem(ns) indexada(s)
 
 == 8. Suite de testes automatizados ==
   mvn test (suite completa)                                  OK - [INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0
 
-RESULTADO: 83/83 verificacoes passaram
+RESULTADO: 87/87 verificacoes passaram

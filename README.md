@@ -4,7 +4,7 @@
 [![Java](https://img.shields.io/badge/Java-21%20LTS-ED8B00)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.3-6DB33F)](https://spring.io/projects/spring-boot)
 [![Docker](https://img.shields.io/badge/Docker-multistage-2496ED)](Dockerfile)
-[![GHCR](https://img.shields.io/badge/GHCR-published-181717)](https://github.com/users/lcsrj/packages/container/spring-devops-observability)
+[![GHCR](https://img.shields.io/badge/GHCR-published-181717)](https://github.com/lcsrj/spring-devops-observability-/pkgs/container/spring-devops-observability-)
 
 Projeto prático de **Automação, Observabilidade e esteira DevSecOps** construído sobre uma
 aplicação **Java 21 / Spring Boot 3.5**, com interface web própria, imagem Docker
@@ -369,6 +369,7 @@ Cole no campo de consulta do Prometheus (http://localhost:9090/graph):
 | Requisições por status HTTP | `sum by (status) (http_server_requests_seconds_count{job="spring-boot-app"})` |
 | Separação 2xx / 4xx / 5xx | `sum(rate(http_server_requests_seconds_count{job="spring-boot-app",status=~"5.."}[1m]))` |
 | Tempo de resposta médio | `sum(rate(http_server_requests_seconds_sum[1m])) / sum(rate(http_server_requests_seconds_count[1m]))` |
+| Tempo médio por família HTTP | `sum(rate(http_server_requests_seconds_sum{job="spring-boot-app",status=~"2.."}[1m])) / clamp_min(sum(rate(http_server_requests_seconds_count{job="spring-boot-app",status=~"2.."}[1m])), 0.0001)` (equivalente para 4xx e 5xx) |
 | Percentil p95 de latência | `histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="spring-boot-app"}[5m])))` |
 | Threads da JVM | `jvm_threads_live_threads{job="spring-boot-app"}` |
 | Uptime | `process_uptime_seconds{job="spring-boot-app"}` |
@@ -389,6 +390,9 @@ O Grafana é **totalmente provisionado**: nada precisa ser cadastrado pela inter
    *Dashboards → Spring Boot*.
 3. Confirme em *Connections → Data sources* que **Prometheus** já existe, apontando para
    `http://prometheus:9090`.
+4. No bloco **Requisições HTTP**, confirme o painel **Tempo medio de resposta por familia
+   HTTP**. Após `./scripts/generate-traffic.sh 3`, ele apresenta três séries reais: 2xx,
+   4xx e 5xx.
 
 ### Painéis do dashboard
 
@@ -674,17 +678,17 @@ enxuto e valida os endpoints com a aplicação em execução.
 ## 14. Imagem no GHCR
 
 ```text
-ghcr.io/lcsrj/spring-devops-observability:latest
-ghcr.io/lcsrj/spring-devops-observability:1.0.0
+ghcr.io/lcsrj/spring-devops-observability-:latest
+ghcr.io/lcsrj/spring-devops-observability-:1.0.0
 ```
 
-Pacote: https://github.com/users/lcsrj/packages/container/spring-devops-observability
+Pacote: https://github.com/lcsrj/spring-devops-observability-/pkgs/container/spring-devops-observability-
 
 Executando a imagem publicada:
 
 ```bash
-docker pull ghcr.io/lcsrj/spring-devops-observability:latest
-docker run --rm -p 8080:8080 ghcr.io/lcsrj/spring-devops-observability:latest
+docker pull ghcr.io/lcsrj/spring-devops-observability-:latest
+docker run --rm -p 8080:8080 ghcr.io/lcsrj/spring-devops-observability-:latest
 ```
 
 > Rodando a imagem isoladamente (fora do Compose), o perfil `docker` está ativo e o
@@ -771,7 +775,7 @@ spring-devops-observability/
 ├── grafana/
 │   ├── provisioning/datasources/         # Prometheus cadastrado automaticamente
 │   ├── provisioning/dashboards/          # provider de dashboards
-│   └── dashboards/                       # JSON do dashboard (14 painéis)
+│   └── dashboards/                       # JSON do dashboard (15 painéis)
 ├── graylog/init/create-gelf-input.sh     # cria o Input GELF (idempotente)
 ├── scripts/
 │   ├── lib.sh                            # funções compartilhadas

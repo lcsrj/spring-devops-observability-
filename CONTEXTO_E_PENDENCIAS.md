@@ -2,8 +2,12 @@
 
 > Documento de referência gerado em **17/09/2026**.
 > Projeto: **DevOps Observability Control Center** (`spring-devops-observability`)
-> Repositório: **https://github.com/lcsrj/spring-devops-observability-**
+> Repositório à data deste documento: **https://github.com/lcsrj/spring-devops-observability-**
 > Usuário GitHub: **lcsrj**
+
+> **Regra vigente de fechamento:** o workflow de GitHub Actions é apenas configuração
+> versionada e não deve ser executado. Não criar evidência nova de Actions, não renomear o
+> repositório `spring-devops-observability-` e usar `[skip ci]` em qualquer commit/push.
 
 ---
 
@@ -35,7 +39,7 @@ demonstração de uma esteira DevOps/DevSecOps completa:
 - **Stack local em um único `docker compose up --build`**: app, Prometheus, Grafana,
   MongoDB, OpenSearch, Graylog e `graylog-init`;
 - **Métricas** via Actuator + Micrometer em `/actuator/prometheus`, coletadas pelo Prometheus;
-- **Grafana** com data source e dashboard de 14 painéis provisionados automaticamente;
+- **Grafana** com data source e dashboard de 15 painéis provisionados automaticamente;
 - **Logs** via Logback + appender GELF/UDP para o Graylog, com o Input GELF criado
   automaticamente por um serviço idempotente;
 - **CI/CD** no GitHub Actions: testes, build multistage, validação da imagem, publicação no
@@ -46,8 +50,8 @@ demonstração de uma esteira DevOps/DevSecOps completa:
 ## 3. Como rodar (para quem pegar o projeto agora)
 
 ```bash
-git clone https://github.com/lcsrj/spring-devops-observability--.git
-cd spring-devops-observability
+git clone https://github.com/lcsrj/spring-devops-observability-.git
+cd spring-devops-observability-
 docker compose up --build
 ```
 
@@ -353,15 +357,11 @@ gh auth refresh -h github.com -s read:packages
 
 ---
 
-## 7. Itens que só podem ser feitos manualmente
+## 7. Fechamento sem GitHub Actions
 
-Nada disso é requisito do enunciado (que pede evidências "quando possível"), mas se quiser
-anexar capturas visuais do GitHub ao trabalho, estas duas precisam de navegador logado:
-
-- [ ] Screenshot da execução verde em
-      https://github.com/lcsrj/spring-devops-observability--/actions
-- [ ] Screenshot do pacote em
-      https://github.com/users/lcsrj/packages/container/spring-devops-observability
+O workflow permanece versionado como requisito acadêmico, mas não deve ser executado neste
+fechamento. Não há captura nova de Actions ou GHCR a produzir; toda validação é local e os
+commits/pushes usam `[skip ci]`.
 
 Todas as outras evidências já estão em `docs/evidencias/` e podem ser regeradas a qualquer
 momento:
