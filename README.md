@@ -532,13 +532,30 @@ Opções úteis do `verify-stack.sh`:
 | `DemoEndpointTests` | Endpoints 200, 400 e 500; os quatro endpoints de log com contador por nível; histórico com status e duração; polling de estado não poluindo o histórico; limite do histórico |
 | `TrafficGeneratorIntegrationTests` | Servidor HTTP real (`RANDOM_PORT`): descoberta da porta, rajada com distribuição 7×2xx / 2×4xx / 1×5xx, quantidade default, teto de 200 e presença das séries 2xx/4xx/5xx em `/actuator/prometheus` |
 
+### Com Maven Wrapper (recomendado)
+
+Com o Java 21 disponível, o Maven Wrapper baixa e usa automaticamente a versão Maven
+configurada pelo projeto. Não é necessário instalar Maven globalmente.
+
+#### Windows
+
+```powershell
+.\mvnw.cmd test
+```
+
+#### Linux/macOS/Git Bash
+
+```bash
+./mvnw test
+```
+
 ### Rodando com Maven instalado
 
 ```bash
 mvn test
 ```
 
-### Rodando sem Maven instalado (mesma imagem do estágio de build)
+### Alternativa isolada e reproduzível: Maven em container
 
 ```bash
 docker run --rm -v "$PWD":/workspace -w /workspace \
@@ -932,11 +949,13 @@ autenticação aqui exigiria certificados e configuração adicional sem ganho a
 laboratório local isolado — mas a decisão está registrada como consciente e **não deve
 ser replicada em produção**.
 
-### Maven em container para desenvolvimento
+### Maven Wrapper e Maven em container para desenvolvimento
 
-O projeto não exige Maven instalado: os testes rodam na mesma imagem
-`maven:3.9.9-eclipse-temurin-21` usada pelo estágio de build, eliminando divergências
-entre a máquina do desenvolvedor, o build da imagem e a pipeline.
+O Maven Wrapper é a opção de conveniência para desenvolvimento local: com Java 21, use
+`./mvnw test` (ou `.\mvnw.cmd test` no Windows) sem instalar Maven globalmente. O Docker
+continua sendo a fonte reproduzível do build; a alternativa em container roda na mesma
+imagem `maven:3.9.9-eclipse-temurin-21` usada pelo estágio de build, eliminando
+divergências entre a máquina do desenvolvedor, o build da imagem e a pipeline.
 
 ---
 
@@ -947,6 +966,7 @@ entre a máquina do desenvolvedor, o build da imagem e a pipeline.
 | Java | 21 (LTS) | Baseline exigido pelo Spring Boot 3.5 |
 | Spring Boot | 3.5.3 | Versão estável com Actuator e Micrometer atuais |
 | Maven | 3.9.9 | Via imagem `maven:3.9.9-eclipse-temurin-21` |
+| Maven Wrapper | Maven 3.9.9 | Conveniência local sem instalação global de Maven |
 | Imagem de build | `maven:3.9.9-eclipse-temurin-21` | JDK 21 + Maven no estágio 1 |
 | Imagem de runtime | `eclipse-temurin:21.0.12_8-jre-alpine` | Apenas JRE, fixada até o patch |
 | logback-gelf | 6.1.1 | Compatível com o Logback 1.5 do Spring Boot 3.5 |
