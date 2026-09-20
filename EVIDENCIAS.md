@@ -108,23 +108,27 @@ pipeline, que **falha** se qualquer ferramenta de build vazar para o runtime.
 
 ## 4. Pipeline CI/CD e GHCR
 
-### Execução real do GitHub Actions
+### Estado do GitHub Actions no repositório público atual
 
 | | |
 |---|---|
-| **Run** | [#35260193812](https://github.com/lcsrj/spring-devops-observability/actions/runs/35260193812) |
-| **Commit** | `2db9b293ac38bc5ff3d837f5850cdf5219d4aeca` |
-| **Gatilho** | `push` na branch `main` |
-| **Conclusão** | ✅ **`success`** |
+| **Repositório** | https://github.com/lcsrj/spring-devops-observability- |
+| **Actions** | https://github.com/lcsrj/spring-devops-observability-/actions |
+| **Execução final própria** | ⏳ **PENDENTE** — será gerada no push final sem `[skip ci]` |
+| **Gatilho previsto** | `push` na branch `main` |
 
-| Job | Resultado |
+A execução verde citada na documentação anterior pertencia ao repositório antigo, que agora
+é privado. Ela não é mais apresentada como evidência do repositório entregue. A execução
+final deve ser registrada aqui depois do único push de validação do repositório público.
+
+| Job esperado | Critério |
 |---|---|
-| Build e testes (JDK 21) | ✅ `success` — `mvn compile`, `mvn test` (23 testes), `mvn package` |
-| Validar docker-compose.yml | ✅ `success` — 7 serviços conferidos, nenhuma tag `latest` |
-| Imagem Docker e publicação no GHCR | ✅ `success` — build multistage, imagem validada, publicada |
-| Varredura de segurança (Trivy) | ✅ `success` — misconfiguration, segredos e vulnerabilidades da imagem |
+| Build e testes (JDK 21) | `mvn compile`, `mvn test`, `mvn package` |
+| Validar docker-compose.yml | 7 serviços conferidos e nenhuma dependência externa com tag `latest` |
+| Imagem Docker e publicação no GHCR | build multistage, validação da imagem e publicação |
+| Varredura de segurança (Trivy) | misconfiguration, segredos e vulnerabilidades da imagem |
 
-### Imagem publicada no GHCR
+### Imagem existente no GHCR
 
 ```text
 ghcr.io/lcsrj/spring-devops-observability:latest
@@ -133,15 +137,15 @@ ghcr.io/lcsrj/spring-devops-observability:main
 ghcr.io/lcsrj/spring-devops-observability:sha-2db9b29
 ```
 
-Pacote: https://github.com/lcsrj/spring-devops-observability/pkgs/container/spring-devops-observability
+Pacote: https://github.com/users/lcsrj/packages/container/spring-devops-observability
 
 ```bash
 docker pull ghcr.io/lcsrj/spring-devops-observability:latest
 ```
 
-### Prova de que a imagem no GHCR está correta
+### Evidência da validação anterior da imagem no GHCR
 
-O job `docker` não apenas publicou: ele fez **`docker pull` da imagem de volta do GHCR**,
+Na validação anterior, o job `docker` publicou e fez **`docker pull` da imagem de volta do GHCR**,
 inspecionou o conteúdo e subiu a aplicação a partir dela. Trecho literal do log da execução:
 
 ```text
@@ -280,10 +284,10 @@ motivo alheio à aplicação — o disco cheio no laptop só antecipou o problem
 
 | O que | Onde |
 |---|---|
-| Repositório | https://github.com/lcsrj/spring-devops-observability |
-| Execuções da pipeline | https://github.com/lcsrj/spring-devops-observability/actions |
-| Execução verde de referência | https://github.com/lcsrj/spring-devops-observability/actions/runs/35260193812 |
-| Imagem no GHCR | https://github.com/lcsrj/spring-devops-observability/pkgs/container/spring-devops-observability |
+| Repositório | https://github.com/lcsrj/spring-devops-observability- |
+| Execuções da pipeline | https://github.com/lcsrj/spring-devops-observability-/actions |
+| Execução verde de referência | Pendente no repositório público atual |
+| Imagem no GHCR | https://github.com/users/lcsrj/packages/container/spring-devops-observability |
 | Workflow | [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) |
 | Dockerfile multistage | [`Dockerfile`](Dockerfile) |
 | Stack completa | [`docker-compose.yml`](docker-compose.yml) |

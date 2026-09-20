@@ -1,10 +1,10 @@
 # DevOps Observability Control Center
 
-[![CI/CD](https://github.com/lcsrj/spring-devops-observability/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/lcsrj/spring-devops-observability/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/lcsrj/spring-devops-observability-/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/lcsrj/spring-devops-observability-/actions/workflows/ci-cd.yml)
 [![Java](https://img.shields.io/badge/Java-21%20LTS-ED8B00)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.3-6DB33F)](https://spring.io/projects/spring-boot)
 [![Docker](https://img.shields.io/badge/Docker-multistage-2496ED)](Dockerfile)
-[![GHCR](https://img.shields.io/badge/GHCR-published-181717)](https://github.com/lcsrj/spring-devops-observability/pkgs/container/spring-devops-observability)
+[![GHCR](https://img.shields.io/badge/GHCR-published-181717)](https://github.com/users/lcsrj/packages/container/spring-devops-observability)
 
 Projeto prático de **Automação, Observabilidade e esteira DevSecOps** construído sobre uma
 aplicação **Java 21 / Spring Boot 3.5**, com interface web própria, imagem Docker
@@ -678,7 +678,7 @@ ghcr.io/lcsrj/spring-devops-observability:latest
 ghcr.io/lcsrj/spring-devops-observability:1.0.0
 ```
 
-Pacote: https://github.com/lcsrj/spring-devops-observability/pkgs/container/spring-devops-observability
+Pacote: https://github.com/users/lcsrj/packages/container/spring-devops-observability
 
 Executando a imagem publicada:
 

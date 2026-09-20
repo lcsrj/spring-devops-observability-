@@ -34,6 +34,9 @@ permissions:
 env:
   JAVA_VERSION: '21'
   REGISTRY: ghcr.io
+  # Nome do pacote GHCR propositalmente estável e sem o hífen final do repositório.
+  # O repositório público permanece "spring-devops-observability-".
+  IMAGE_NAME: lcsrj/spring-devops-observability
   TRIVY_VERSION: '0.74.0'
 
 concurrency:
@@ -148,10 +151,6 @@ jobs:
       - name: Checkout do codigo
         uses: actions/checkout@v4
 
-      - name: Normalizar o nome da imagem para minusculas
-        id: image
-        run: echo "name=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-
       - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -168,7 +167,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=raw,value=${{ needs.build-and-test.outputs.app-version }},enable={{is_default_branch}}

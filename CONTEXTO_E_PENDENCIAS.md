@@ -2,7 +2,7 @@
 
 > Documento de referência gerado em **17/09/2026**.
 > Projeto: **DevOps Observability Control Center** (`spring-devops-observability`)
-> Repositório: **https://github.com/lcsrj/spring-devops-observability**
+> Repositório: **https://github.com/lcsrj/spring-devops-observability-**
 > Usuário GitHub: **lcsrj**
 
 ---
@@ -46,7 +46,7 @@ demonstração de uma esteira DevOps/DevSecOps completa:
 ## 3. Como rodar (para quem pegar o projeto agora)
 
 ```bash
-git clone https://github.com/lcsrj/spring-devops-observability.git
+git clone https://github.com/lcsrj/spring-devops-observability--.git
 cd spring-devops-observability
 docker compose up --build
 ```
@@ -359,9 +359,9 @@ Nada disso é requisito do enunciado (que pede evidências "quando possível"), 
 anexar capturas visuais do GitHub ao trabalho, estas duas precisam de navegador logado:
 
 - [ ] Screenshot da execução verde em
-      https://github.com/lcsrj/spring-devops-observability/actions/runs/35260193812
+      https://github.com/lcsrj/spring-devops-observability--/actions
 - [ ] Screenshot do pacote em
-      https://github.com/lcsrj/spring-devops-observability/pkgs/container/spring-devops-observability
+      https://github.com/users/lcsrj/packages/container/spring-devops-observability
 
 Todas as outras evidências já estão em `docs/evidencias/` e podem ser regeradas a qualquer
 momento:

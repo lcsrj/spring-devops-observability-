@@ -40,7 +40,7 @@ FROM eclipse-temurin:21.0.12_8-jre-alpine AS runtime
 
 LABEL org.opencontainers.image.title="DevOps Observability Control Center" \
       org.opencontainers.image.description="Aplicacao Spring Boot com Actuator, Micrometer/Prometheus e logs GELF para Graylog" \
-      org.opencontainers.image.source="https://github.com/lcsrj/spring-devops-observability" \
+      org.opencontainers.image.source="https://github.com/lcsrj/spring-devops-observability-" \
       org.opencontainers.image.licenses="MIT"
 
 # Usuario sem privilegios: o processo Java nunca roda como root.
