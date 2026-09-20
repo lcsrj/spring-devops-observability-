@@ -1,15 +1,13 @@
 # DevOps Observability Control Center
 
-[![CI/CD](https://github.com/lcsrj/spring-devops-observability-/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/lcsrj/spring-devops-observability-/actions/workflows/ci-cd.yml)
 [![Java](https://img.shields.io/badge/Java-21%20LTS-ED8B00)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.3-6DB33F)](https://spring.io/projects/spring-boot)
 [![Docker](https://img.shields.io/badge/Docker-multistage-2496ED)](Dockerfile)
-[![GHCR](https://img.shields.io/badge/GHCR-published-181717)](https://github.com/lcsrj/spring-devops-observability-/pkgs/container/spring-devops-observability-)
 
 Projeto prático de **Automação, Observabilidade e esteira DevSecOps** construído sobre uma
 aplicação **Java 21 / Spring Boot 3.5**, com interface web própria, imagem Docker
-**multistage**, pipeline CI/CD no GitHub Actions com publicação no GHCR, métricas no
-Prometheus, dashboard provisionado no Grafana e centralização de logs no Graylog.
+**multistage**, workflow CI/CD versionado para build, testes e publicação opcional no GHCR,
+métricas no Prometheus, dashboard provisionado no Grafana e centralização de logs no Graylog.
 
 A stack completa sobe com **um único comando**:
 
@@ -54,7 +52,7 @@ Demonstrar, de ponta a ponta e de forma reproduzível, uma esteira DevOps/DevSec
 |---|---|
 | **Aplicação** | API + **interface web** servida pelo próprio Spring Boot (Thymeleaf, CSS e JS próprios, sem CDN) |
 | **Automação de build** | `Dockerfile` **multistage** (JDK+Maven para build e testes → JRE enxuto para runtime) |
-| **CI/CD** | GitHub Actions: compila, testa, constrói a imagem e publica no GitHub Container Registry |
+| **CI/CD** | Workflow GitHub Actions versionado: configurado para compilar, testar, construir a imagem e publicar no GitHub Container Registry; não executado no fechamento desta entrega |
 | **Métricas** | Spring Boot Actuator + Micrometer expostos em `/actuator/prometheus`, coletados pelo Prometheus |
 | **Visualização** | Grafana com data source e dashboard **provisionados automaticamente** |
 | **Logs** | Logback + appender **GELF** enviando para o Graylog (MongoDB + OpenSearch), com Input criado automaticamente |
@@ -399,7 +397,7 @@ O Grafana é **totalmente provisionado**: nada precisa ser cadastrado pela inter
 | Linha | Painéis |
 |---|---|
 | **Visão geral** | Status geral da aplicação (UP/DOWN) · Uptime · Total de requisições HTTP · RPS · Latência média · Threads da JVM |
-| **Requisições HTTP** | RPS separado por família 2xx / 4xx / 5xx · Distribuição por status HTTP (donut) · Tempo de resposta (média, p95, p99) · Requisições por endpoint |
+| **Requisições HTTP** | RPS separado por família 2xx / 4xx / 5xx · Distribuição por status HTTP (donut) · Tempo de resposta (média, p95, p99) · **Tempo médio por família HTTP (2xx / 4xx / 5xx)** · Requisições por endpoint |
 | **JVM e processo** | Heap usada / comprometida / máxima · CPU do processo e do sistema · Threads e memória não-heap · Eventos de log por nível |
 
 ### Para os gráficos saírem preenchidos
@@ -498,7 +496,7 @@ respeitam as portas definidas no `.env`.
 | `./scripts/wait-stack.sh [timeout]` | Espera todos os containers ficarem `healthy`, o `graylog-init` terminar com exit 0 e os endpoints HTTP responderem. Usa readiness real, sem `sleep` cego. |
 | `./scripts/generate-traffic.sh [rodadas]` | Gera tráfego 2xx / 4xx / 5xx e emite logs nos quatro níveis. |
 | `./scripts/smoke-test.sh` | 28 verificações: aplicação, interface, actuator, endpoint Prometheus da app, Prometheus, Grafana e Graylog. |
-| `./scripts/verify-stack.sh` | Auditoria completa (83 verificações): arquivos obrigatórios, multistage real, inspeção da imagem, containers healthy, endpoints, target UP e métricas com valor, Grafana provisionado e devolvendo dados, Input GELF RUNNING, logs dos 4 níveis pesquisáveis e `mvn test`. |
+| `./scripts/verify-stack.sh` | Auditoria completa (86 verificações): arquivos obrigatórios, multistage real, inspeção da imagem, containers healthy, endpoints, target UP e métricas com valor, Grafana provisionado e devolvendo dados, Input GELF RUNNING, logs dos 4 níveis pesquisáveis e `mvn test`. |
 | `./scripts/capture-evidence.sh` | Gera as evidências de `docs/evidencias/`: capturas de tela com Chromium headless em container (nada a instalar) e saídas reais de comandos e de API. |
 | `./scripts/lib.sh` | Funções compartilhadas (não é executado diretamente). |
 
@@ -547,8 +545,9 @@ docker run --rm -v "$PWD":/workspace -w /workspace \
   maven:3.9.9-eclipse-temurin-21 mvn -B -ntp test
 ```
 
-Os testes também rodam **dentro do build da imagem** (`mvn package` no estágio 1) e na
-pipeline do GitHub Actions. Se um teste falhar, o build da imagem falha.
+Os testes também rodam **dentro do build da imagem** (`mvn package` no estágio 1). O
+workflow GitHub Actions versionado também está configurado para executá-los, mas não foi
+executado no fechamento desta entrega. Se um teste falhar, o build da imagem falha.
 
 ---
 
@@ -620,12 +619,17 @@ arquivos .java / pom.xml na imagem final -> 0
 usuário do processo -> uid=100(spring) gid=101(spring)
 ```
 
-O `verify-stack.sh` e a pipeline do GitHub Actions executam essas mesmas checagens
-automaticamente e **falham** se qualquer ferramenta de build vazar para o runtime.
+O `verify-stack.sh` executa essas checagens localmente. O workflow GitHub Actions versionado
+contém validações equivalentes, mas não foi executado no fechamento desta entrega. As
+checagens **falham** se qualquer ferramenta de build vazar para o runtime.
 
 ---
 
 ## 13. Pipeline CI/CD
+
+> **Estado desta entrega:** o workflow abaixo está versionado como parte do requisito acadêmico,
+> mas **não foi executado no fechamento deste repositório**. As validações desta entrega foram
+> feitas localmente com Docker, Maven em contêiner, smoke tests e `verify-stack.sh`.
 
 Arquivo: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)
 
@@ -675,27 +679,31 @@ enxuto e valida os endpoints com a aplicação em execução.
 
 ---
 
-## 14. Imagem no GHCR
+## 14. Configuração de publicação no GHCR
+
+O workflow versionado está configurado para publicar, **caso seja executado**, no GitHub
+Container Registry usando o nome estável definido em `.github/workflows/ci-cd.yml`:
 
 ```text
-ghcr.io/lcsrj/spring-devops-observability-:latest
-ghcr.io/lcsrj/spring-devops-observability-:1.0.0
+ghcr.io/lcsrj/spring-devops-observability:latest
+ghcr.io/lcsrj/spring-devops-observability:1.0.0
 ```
 
-Pacote: https://github.com/lcsrj/spring-devops-observability-/pkgs/container/spring-devops-observability-
+O nome da imagem é propositalmente mantido **sem o hífen final do nome do repositório**.
+Nenhuma nova publicação no GHCR foi realizada durante o fechamento desta entrega e este
+README não apresenta uma imagem nova como se tivesse sido publicada.
 
-Executando a imagem publicada:
+Se o workflow for executado futuramente, os comandos esperados serão:
 
 ```bash
-docker pull ghcr.io/lcsrj/spring-devops-observability-:latest
-docker run --rm -p 8080:8080 ghcr.io/lcsrj/spring-devops-observability-:latest
+docker pull ghcr.io/lcsrj/spring-devops-observability:latest
+docker run --rm -p 8080:8080 ghcr.io/lcsrj/spring-devops-observability:latest
 ```
 
 > Rodando a imagem isoladamente (fora do Compose), o perfil `docker` está ativo e o
 > appender GELF tenta enviar para o host `graylog`. Como o envio é UDP fire-and-forget, a
 > aplicação funciona normalmente — apenas os logs não chegam a nenhum Graylog. Para a
 > experiência completa, use `docker compose up --build`.
-
 ---
 
 ## 15. Endpoints da aplicação
@@ -729,7 +737,7 @@ a superfície exposta é mínima por decisão de segurança, verificada por test
 ## 16. Estrutura do projeto
 
 ```text
-spring-devops-observability/
+spring-devops-observability-/
 ├── .github/workflows/ci-cd.yml          # pipeline: build, test, docker, GHCR, Trivy
 ├── .dockerignore                        # mantém o contexto de build enxuto
 ├── .gitignore                           # Java, Maven, IDE, SO, logs, .env
