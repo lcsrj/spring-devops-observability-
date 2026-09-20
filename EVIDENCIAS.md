@@ -26,7 +26,7 @@ docker compose up --build -d
 | Prometheus | Scrape de `app:8080/actuator/prometheus`, target UP e consultas reais | [`02-prometheus-targets.png`](docs/evidencias/02-prometheus-targets.png), [`12-prometheus-targets.json`](docs/evidencias/12-prometheus-targets.json), [`14-prometheus-metricas-consultadas.txt`](docs/evidencias/14-prometheus-metricas-consultadas.txt) |
 | Grafana | Data source e dashboard provisionados; heap, CPU, RPS, contagem HTTP e latência por famílias | [`05-grafana-dashboard.png`](docs/evidencias/05-grafana-dashboard.png), [`15-grafana-provisionamento.txt`](docs/evidencias/15-grafana-provisionamento.txt), [`spring-boot-observability.json`](grafana/dashboards/spring-boot-observability.json) |
 | Graylog | Input GELF automático, logs DEBUG/INFO/WARN/ERROR, campos estruturados e stack trace | [`11-graylog-init-logs.txt`](docs/evidencias/11-graylog-init-logs.txt), [`16-graylog-logs-por-nivel.txt`](docs/evidencias/16-graylog-logs-por-nivel.txt), [`17-graylog-mensagem-exemplo.txt`](docs/evidencias/17-graylog-mensagem-exemplo.txt) |
-| CI/CD e GHCR | Workflow versionado com build/teste/package, Compose lint, imagem, smoke, publicação em push na `main` e Trivy. Por regra deste fechamento, ele não é executado. | [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) |
+| CI/CD e GHCR | Workflow executado com sucesso em `CI/CD #1`: build/testes, Compose lint, imagem Docker e Trivy verdes. Como foi `workflow_dispatch`, o push ao GHCR não ocorreu; permanece configurado para `push` na `main`. | [Run #35485113822](https://github.com/lcsrj/spring-devops-observability-/actions/runs/35485113822), [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) |
 
 ## Evidências visuais
 
@@ -55,12 +55,25 @@ existência do painel correspondente no dashboard. Os números nos arquivos hist
 registros da última execução; execute a sequência acima para gerar números atuais após esta
 alteração.
 
-## Workflow versionado, sem execução
+## Execução real do workflow
 
-O arquivo [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) é mantido como
-parte da entrega acadêmica, mas **não deve ser disparado neste fechamento**. Qualquer
-commit ou push futuro deste trabalho deve incluir `[skip ci]`; não há nova run, imagem
-GHCR ou screenshot de Actions a registrar.
+O workflow foi executado uma vez manualmente para comprovar o funcionamento da esteira.
+
+| Campo | Valor |
+|---|---|
+| Run | [CI/CD #1](https://github.com/lcsrj/spring-devops-observability-/actions/runs/35485113822) |
+| Evento | `workflow_dispatch` |
+| Duração | 2m36s |
+| Commit | `bfde58d3bd1666bf491d9fc1deef70d343c21557` |
+| Conclusão | ✅ `success` |
+| Build e testes (JDK 21) | ✅ `success` |
+| Validar docker-compose.yml | ✅ `success` |
+| Imagem Docker e validação | ✅ `success` |
+| Trivy | ✅ `success` |
+
+Como a execução foi `workflow_dispatch`, a etapa de autenticação/publicação no GHCR foi
+ignorada. O workflow continua configurado para publicar a imagem automaticamente quando
+for disparado por um `push` na branch `main`.
 
 ## Links atuais
 
