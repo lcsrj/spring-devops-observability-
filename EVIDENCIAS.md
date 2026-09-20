@@ -37,6 +37,7 @@ docker compose up --build -d
 | [`03-prometheus-grafico-rps.png`](docs/evidencias/03-prometheus-grafico-rps.png) | Tráfego HTTP por status. |
 | [`04-graylog-logs.png`](docs/evidencias/04-graylog-logs.png) | Graylog Search com logs reais, timestamps, origem e mensagens nos níveis DEBUG/INFO/WARN/ERROR. |
 | [`05-grafana-dashboard.png`](docs/evidencias/05-grafana-dashboard.png) | Dashboard atual com o painel de latência por família HTTP e séries 2xx, 4xx e 5xx visíveis. |
+| [`06-github-actions-pipeline.png`](docs/evidencias/06-github-actions-pipeline.png) | Execução real CI/CD #1 concluída com sucesso, exibindo os quatro jobs verdes: build/testes, validação do Docker Compose, build/validação da imagem Docker e Trivy. |
 
 ### Capturas concluídas
 
@@ -45,6 +46,10 @@ docker compose up --build -d
 reais. `05-grafana-dashboard.png` mostra o painel **Tempo medio de resposta por familia
 HTTP** com as três séries 2xx, 4xx e 5xx. A API do Grafana e `verify-stack.sh` também
 validam esse painel na stack local.
+
+`06-github-actions-pipeline.png` registra a execução real **CI/CD #1** com status
+`Success` e os quatro jobs concluídos. Como o evento foi `workflow_dispatch`, a execução
+construiu e validou a imagem, mas não publicou uma nova imagem no GHCR.
 
 ## Auditoria local esperada
 

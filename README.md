@@ -667,6 +667,7 @@ Arquivo: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)
 | Imagem Docker e validação | ✅ success |
 | Varredura de segurança (Trivy) | ✅ success |
 | Push ao GHCR nesta execução | Não realizado — o workflow só publica em `push` na `main` |
+| Captura visual | [`06-github-actions-pipeline.png`](docs/evidencias/06-github-actions-pipeline.png) |
 
 ### Registry e permissões
 
