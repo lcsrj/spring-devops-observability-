@@ -48,8 +48,9 @@ validam esse painel na stack local.
 
 ## Auditoria local esperada
 
-`verify-stack.sh` valida Dockerfile, containers, endpoints, Prometheus, Grafana, Graylog e
-a suíte Maven. A auditoria agora exige dados de latência média para 2xx, 4xx e 5xx e a
+`verify-stack.sh` valida Dockerfile, containers, endpoints, Prometheus, Grafana e Graylog;
+quando executado sem `--skip-tests`, inclui também a suíte Maven como verificação adicional.
+A auditoria agora exige dados de latência média para 2xx, 4xx e 5xx e a
 existência do painel correspondente no dashboard. Os números nos arquivos históricos são
 registros da última execução; execute a sequência acima para gerar números atuais após esta
 alteração.
