@@ -496,7 +496,7 @@ respeitam as portas definidas no `.env`.
 | `./scripts/wait-stack.sh [timeout]` | Espera todos os containers ficarem `healthy`, o `graylog-init` terminar com exit 0 e os endpoints HTTP responderem. Usa readiness real, sem `sleep` cego. |
 | `./scripts/generate-traffic.sh [rodadas]` | Gera tráfego 2xx / 4xx / 5xx e emite logs nos quatro níveis. |
 | `./scripts/smoke-test.sh` | 28 verificações: aplicação, interface, actuator, endpoint Prometheus da app, Prometheus, Grafana e Graylog. |
-| `./scripts/verify-stack.sh` | Auditoria completa (86 verificações): arquivos obrigatórios, multistage real, inspeção da imagem, containers healthy, endpoints, target UP e métricas com valor, Grafana provisionado e devolvendo dados, Input GELF RUNNING, logs dos 4 níveis pesquisáveis e `mvn test`. |
+| `./scripts/verify-stack.sh` | 86 verificações da stack com `--skip-tests`; sem essa opção, adiciona a suíte Maven como 87ª verificação. Cobre arquivos obrigatórios, multistage real, imagem, containers, endpoints, Prometheus, Grafana e Graylog. |
 | `./scripts/capture-evidence.sh` | Gera as evidências de `docs/evidencias/`: capturas de tela com Chromium headless em container (nada a instalar) e saídas reais de comandos e de API. |
 | `./scripts/lib.sh` | Funções compartilhadas (não é executado diretamente). |
 
